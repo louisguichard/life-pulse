@@ -1,22 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>LifePulse</title>
+    <meta charset="UTF-8"> <!-- Sets the character encoding for the document -->
+    <title>LifePulse</title> <!-- Sets the title of the page -->
+    <style>
+        /* CSS Reset to remove default margins and paddings */
+        * {
+            margin: 0; /* Removes default margin */
+            padding: 0; /* Removes default padding */
+            box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+        }
+        body {
+            display: flex; /* Enables flexbox layout */
+            justify-content: center; /* Centers content horizontally */
+            align-items: center; /* Centers content vertically */
+            height: 100vh; /* Sets the height to 100% of the viewport height */
+            font-family: Arial, sans-serif; /* Sets the font family */
+        }
+        .container {
+            text-align: center; /* Centers text inside the container */
+        }
+        .button-container {
+            display: flex; /* Enables flexbox for button arrangement */
+            flex-direction: column; /* Arranges buttons in a column */
+            gap: 20px; /* Adds space between button rows */
+            margin-top: 20px; /* Adds space above the button container */
+        }
+        .main-buttons {
+            display: flex; /* Enables flexbox for main buttons */
+            justify-content: center; /* Centers main buttons horizontally */
+            gap: 10px; /* Adds space between main buttons */
+        }
+        .main-button {
+            width: 100px; /* Sets the width of main buttons */
+            height: 100px; /* Sets the height of main buttons */
+            border-radius: 50%; /* Makes the buttons circular */
+            font-size: 20px; /* Increases the font size for visibility */
+            border: none; /* Removes the default border */
+            cursor: pointer; /* Changes cursor to pointer on hover */
+            background-color: #d5d34d; /* Sets a yellow background color */
+            color: black; /* Sets the text color to black */
+        }
+        .secondary-buttons {
+            display: flex; /* Enables flexbox for secondary buttons */
+            justify-content: center; /* Centers secondary buttons horizontally */
+            gap: 10px; /* Adds space between secondary buttons */
+        }
+        .secondary-button {
+            padding: 10px 20px; /* Adds padding inside the buttons */
+            font-size: 16px; /* Sets the font size */
+            border: none; /* Removes the default border */
+            cursor: pointer; /* Changes cursor to pointer on hover */
+            background-color: #c7c7c7; /* Sets a blue background color */
+            color: black; /* Sets the text color to white */
+            border-radius: 5px; /* Adds slight rounding to button corners */
+        }
+    </style>
 </head>
 <body>
-    <h1>LifePulse</h1>
-    {% if fitbit_required %}
-        <p>Fitbit connection is required.</p>
-        <a href="{{ url_for('fitbit_login') }}">Connect to Fitbit</a>
-    {% else %}
-        <div class="button-container"></div>
-            <a href="{{ url_for('mood') }}"><button data-icon="😊"><span>Mood</span></button></a>
-            <a href="{{ url_for('events') }}"><button data-icon="📅"><span>Events</span></button></a>
-            <a href="{{ url_for('health') }}"><button data-icon="🩺"><span>Health</span></button></a>
-            <a href="{{ url_for('dashboard') }}"><button data-icon="📊"><span>Dashboard</span></button></a>
-            <a href="{{ url_for('history') }}"><button data-icon="📖"><span>History</span></button></a>
-        </div>
-    {% endif %}
+    <div class="container"> <!-- Main container to center content -->
+        <h1>LifePulse</h1> <!-- Page heading -->
+        {% if fitbit_required %}
+            <p>Fitbit connection is required.</p> <!-- Message indicating Fitbit connection is needed -->
+            <a href="{{ url_for('fitbit_login') }}">Connect to Fitbit</a> <!-- Link to connect Fitbit -->
+        {% else %}
+            <div class="button-container"> <!-- Container for buttons -->
+                <div class="main-buttons"> <!-- Container for main buttons -->
+                    <a href="{{ url_for('mood') }}">
+                        <button class="main-button">😊<br><span>Mood</span></button> <!-- Mood button with emoji -->
+                    </a>
+                    <a href="{{ url_for('events') }}">
+                        <button class="main-button">📅<br><span>Events</span></button> <!-- Events button with emoji -->
+                    </a>
+                    <a href="{{ url_for('health') }}">
+                        <button class="main-button">🩺<br><span>Health</span></button> <!-- Health button with emoji -->
+                    </a>
+                </div>
+                <div class="secondary-buttons"> <!-- Container for secondary buttons -->
+                    <a href="{{ url_for('dashboard') }}">
+                        <button class="secondary-button">📊<br>Dashboard</button> <!-- Dashboard button with emoji -->
+                    </a>
+                    <a href="{{ url_for('history') }}">
+                        <button class="secondary-button">📖<br>History</button> <!-- History button with emoji -->
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 </body>
 </html>

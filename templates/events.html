@@ -3,17 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <title>LifePulse - Record Event</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: white;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input[type="datetime-local"] {
+            padding: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .event-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .event-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            background-color: #2196F3;
+            color: white;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .event-button:hover {
+            background-color: #1976D2;
+        }
+    </style>
 </head>
 <body>
     <h2>Record Event</h2>
     <form method="post">
-        <label for="datetime">Date and Time:</label><br>
         <input type="datetime-local" id="datetime" name="datetime" value="{{ current_time }}">
-        <br><br>
-        <label>Event:</label><br>
-        <button type="submit" name="event" value="Coffee">Coffee</button>
-        <button type="submit" name="event" value="Friends">Friends</button>
-        <button type="submit" name="event" value="Sport">Sport</button>
+        <div class="event-buttons">
+            <button type="submit" name="event" value="Coffee" class="event-button">☕ Coffee</button>
+            <button type="submit" name="event" value="Friends" class="event-button">👫 Friends</button>
+            <button type="submit" name="event" value="Sport" class="event-button">🏃 Sport</button>
+        </div>
     </form>
 </body>
 </html>

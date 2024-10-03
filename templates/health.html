@@ -3,17 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <title>LifePulse - Record Health Condition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: white;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input[type="datetime-local"] {
+            padding: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .condition-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .condition-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            background-color: #DC143C; /* Crimson */
+            color: white;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .condition-button:hover {
+            background-color: #B22222; /* Firebrick */
+        }
+    </style>
 </head>
 <body>
     <h2>Record Health Condition</h2>
     <form method="post">
-        <label for="datetime">Date and Time:</label><br>
         <input type="datetime-local" id="datetime" name="datetime" value="{{ current_time }}">
-        <br><br>
-        <label>Condition:</label><br>
-        <button type="submit" name="condition" value="Headache">Headache</button>
-        <button type="submit" name="condition" value="Stomachache">Stomachache</button>
-        <button type="submit" name="condition" value="Earache">Earache</button>
+        <div class="condition-buttons">
+            <button type="submit" name="condition" value="Headache" class="condition-button">🤕 Headache</button>
+            <button type="submit" name="condition" value="Stomachache" class="condition-button">🤢 Stomachache</button>
+            <button type="submit" name="condition" value="Earache" class="condition-button">👂 Earache</button>
+        </div>
     </form>
 </body>
 </html>
