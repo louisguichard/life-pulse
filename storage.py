@@ -10,6 +10,12 @@ storage_client = storage.Client(project=PROJECT_ID)
 
 
 def load_data():
+    """
+    Loads data from the CSV file.
+
+    Returns:
+        list: A list of rows, where each row is a list of fields.
+    """
     bucket = storage_client.bucket(BUCKET_NAME)
     blob = bucket.blob(FILE_NAME)
     if not blob.exists():
@@ -20,6 +26,12 @@ def load_data():
 
 
 def save_data(row):
+    """
+    Adds a row to the CSV file.
+
+    Args:
+        row (list): The row to save, e.g., [date_time, type, value, comment].
+    """
     row = [str(item) for item in row]
     bucket = storage_client.bucket(BUCKET_NAME)
     blob = bucket.blob(FILE_NAME)
@@ -38,7 +50,7 @@ def delete_data(target_row):
     Deletes a specific row from the CSV file.
 
     Args:
-        target_row (list): The row to delete, e.g., [date, type, value].
+        target_row (list): The row to delete, e.g., [date_time, type, value, comment].
 
     Raises:
         ValueError: If the row is not found.
@@ -53,8 +65,10 @@ def delete_data(target_row):
 
     # Find the row to delete
     initial_length = len(rows)
-    rows = [row for row in rows if row != target_row]
-
+    for i in range(len(rows)):
+        if rows[i] == target_row:
+            del rows[i]
+            break
     if len(rows) == initial_length:
         raise ValueError("Record not found.")
 
