@@ -1,6 +1,7 @@
 from flask import Flask, session, render_template, request, redirect, url_for, flash
 from datetime import datetime, timedelta
 import pytz
+from babel.dates import format_datetime
 
 from storage import load_data, save_data, delete_data
 from fitbit import (
@@ -18,10 +19,20 @@ paris_tz = pytz.timezone("Europe/Paris")
 
 
 def round_to_hour(dt):
-    "Rounds datetime to hour." ""
-    if dt.minute > 300:
+    "Rounds datetime to hour."
+    if dt.minute >= 30:
         dt += timedelta(hours=1)
     return dt.replace(minute=0, second=0, microsecond=0)
+
+
+def format_date_french(date_str):
+    """
+    Formats a date string from 'YYYY-MM-DDTHH:MM' to 'EEEE d MMMM yyyy - HHh'
+    Example: '2024-10-03T16:00' -> 'Jeudi 3 Octobre 2024 - 16h'
+    """
+    dt = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
+    dt = paris_tz.localize(dt)
+    return format_datetime(dt, "EEEE d MMMM yyyy - HH'h'", locale="fr")
 
 
 @app.route("/")
@@ -93,7 +104,12 @@ def dashboard():
 def history():
     data = load_data()
     recent_data = data[::-1][:20]
-    return render_template("history.html", data=recent_data)
+    formatted_data = []
+    for row in recent_data:
+        formatted_date = format_date_french(row[0])
+        formatted_row = [formatted_date, row[1], row[2]]
+        formatted_data.append(formatted_row)
+    return render_template("history.html", data=formatted_data)
 
 
 @app.route("/delete", methods=["POST"])
