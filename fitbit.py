@@ -6,14 +6,14 @@ from datetime import datetime, timedelta
 from flask import request, session, redirect, url_for
 from urllib.parse import urlencode
 
-# Fitbit API credentials
 load_dotenv()
+SCHEME = "http" if os.getenv("APP_ENV") == "local" else "https"
 FITBIT_CLIENT_ID = os.getenv("FITBIT_CLIENT_ID")
 FITBIT_CLIENT_SECRET = os.getenv("FITBIT_CLIENT_SECRET")
 
 
 def fitbit_login():
-    redirect_uri = url_for("fitbit_callback", _external=True)
+    redirect_uri = url_for("fitbit_callback", _external=True, _scheme=SCHEME)
     scope = "activity sleep heartrate weight"
     params = {
         "response_type": "code",
@@ -30,7 +30,7 @@ def fitbit_callback():
     if not code:
         return "Error: Missing authorization code"
 
-    redirect_uri = url_for("fitbit_callback", _external=True)
+    redirect_uri = url_for("fitbit_callback", _external=True, _scheme=SCHEME)
 
     # Exchange code for access token
     token_url = "https://api.fitbit.com/oauth2/token"
@@ -56,13 +56,11 @@ def fitbit_callback():
     session["fitbit_expires_at"] = (
         datetime.utcnow() + timedelta(seconds=token_info["expires_in"])
     ).isoformat()
-    print(session["fitbit_access_token"])
 
     return redirect(url_for("home"))
 
 
 def refresh_fitbit_token():
-    print("Running refresh_fitbit_token")
     refresh_token = session.get("fitbit_refresh_token")
     if not refresh_token:
         return False
@@ -78,7 +76,6 @@ def refresh_fitbit_token():
     token_info = response.json()
 
     if response.status_code != 200:
-        print("Token refresh failed:", response.status_code, response.text)
         return False
 
     # Update tokens in session

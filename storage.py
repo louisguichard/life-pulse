@@ -29,6 +29,5 @@ def save_data(row):
         data = blob.download_as_text()
         rows = data.strip().split("\n")
     rows.append(",".join(row))
-    print(rows)
     rows = sorted(rows, key=lambda row: row.split(",")[0])
     blob.upload_from_string("\n".join(rows))
