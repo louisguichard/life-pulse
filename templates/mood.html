@@ -27,12 +27,17 @@
             flex-direction: column;
             align-items: center;
         }
-        input[type="datetime-local"] {
+        input[type="datetime-local"],
+        textarea {
             padding: 8px;
             font-size: 16px;
             margin-bottom: 20px;
             width: 100%;
             max-width: 300px;
+        }
+        textarea {
+            resize: vertical;
+            height: 50px;
         }
         .mood-buttons {
             display: grid;
@@ -75,6 +80,9 @@
     <h2>Record Mood</h2>
     <form method="post">
         <input type="datetime-local" id="datetime" name="datetime" value="{{ current_time }}" step="3600">
+        
+        <textarea id="comment" name="comment" placeholder="Add a comment (optional)"></textarea>
+        
         <div class="mood-buttons">
             {% for i in range(1, 11) %}
                 <button type="submit" name="mood" value="{{ i }}" class="mood-button mood-{{ i }}">

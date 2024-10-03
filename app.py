@@ -1,7 +1,6 @@
 from flask import Flask, session, render_template, request, redirect, url_for, flash
 from datetime import datetime, timedelta
 import pytz
-from babel.dates import format_datetime
 
 from storage import load_data, save_data, delete_data
 from fitbit import (
@@ -25,14 +24,14 @@ def round_to_hour(dt):
     return dt.replace(minute=0, second=0, microsecond=0)
 
 
-def format_date_french(date_str):
-    """
-    Formats a date string from 'YYYY-MM-DDTHH:MM' to 'EEEE d MMMM yyyy - HHh'
-    Example: '2024-10-03T16:00' -> 'Jeudi 3 Octobre 2024 - 16h'
-    """
-    dt = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
-    dt = paris_tz.localize(dt)
-    return format_datetime(dt, "EEEE d MMMM yyyy - HH'h'", locale="fr")
+# def format_date_french(date_str):
+#     """
+#     Formats a date string from 'YYYY-MM-DDTHH:MM' to 'EEEE d MMMM yyyy - HHh'
+#     Example: '2024-10-03T16:00' -> 'Jeudi 3 Octobre 2024 - 16h'
+#     """
+#     dt = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
+#     dt = paris_tz.localize(dt)
+#     return format_datetime(dt, "EEEE d MMMM yyyy - HH'h'", locale="fr")
 
 
 @app.route("/")
@@ -54,7 +53,8 @@ def mood():
     if request.method == "POST":
         date_time = request.form["datetime"]
         mood_value = request.form["mood"]
-        save_data([date_time, "Mood", mood_value])
+        comment = request.form.get("comment", "")
+        save_data([date_time, "Mood", mood_value, comment])
         return redirect(url_for("home"))
     else:
         current_time = round_to_hour(datetime.now(paris_tz)).strftime("%Y-%m-%dT%H:00")
@@ -66,7 +66,7 @@ def events():
     if request.method == "POST":
         date_time = request.form["datetime"]
         event = request.form["event"]
-        save_data([date_time, "Event", event])
+        save_data([date_time, "Event", event, ""])
         return redirect(url_for("home"))
     else:
         current_time = round_to_hour(datetime.now(paris_tz)).strftime("%Y-%m-%dT%H:00")
@@ -78,7 +78,7 @@ def health():
     if request.method == "POST":
         date_time = request.form["datetime"]
         condition = request.form["condition"]
-        save_data([date_time, "Health", condition])
+        save_data([date_time, "Health", condition, ""])
         return redirect(url_for("home"))
     else:
         current_time = round_to_hour(datetime.now(paris_tz)).strftime("%Y-%m-%dT%H:00")
@@ -96,6 +96,7 @@ def dashboard():
     try:
         steps, sleep = get_fitbit_data(date)
     except ValueError:
+        flash("Failed to retrieve Fitbit data.", "error")
         return render_template("dashboard.html", fitbit_required=True)
     return render_template("dashboard.html", steps=steps, sleep=sleep)
 
@@ -104,12 +105,13 @@ def dashboard():
 def history():
     data = load_data()
     recent_data = data[::-1][:20]
-    formatted_data = []
-    for row in recent_data:
-        formatted_date = format_date_french(row[0])
-        formatted_row = [formatted_date, row[1], row[2]]
-        formatted_data.append(formatted_row)
-    return render_template("history.html", data=formatted_data)
+    # Undo date formatting for deletion to work correctly
+    # formatted_data = []
+    # for row in recent_data:
+    # formatted_date = format_date_french(row[0])
+    # formatted_row = [formatted_date, row[1], row[2], row[3]]
+    # formatted_data.append(formatted_row)
+    return render_template("history.html", data=recent_data)
 
 
 @app.route("/delete", methods=["POST"])
@@ -117,18 +119,13 @@ def delete_record():
     date = request.form.get("date")
     record_type = request.form.get("type")
     value = request.form.get("value")
-
-    if not date or not record_type or not value:
-        flash("Invalid data for deletion.")
-        return redirect(url_for("history"))
-
-    row = [date, record_type, value]
+    comment = request.form.get("comment")
+    row = [date, record_type, value, comment]
     try:
         delete_data(row)
-        flash("Record deleted successfully.")
+        flash("Record deleted successfully.", "success")
     except ValueError as e:
-        flash(str(e))
-
+        flash(str(e), "error")
     return redirect(url_for("history"))
 
 
@@ -152,9 +149,9 @@ def save_fitbit_data():
         if any([data_type not in existing_types for data_type in fitbit_types]):
             steps, sleep = get_fitbit_data(past_date)
             if "Sleep" not in existing_types:
-                save_data([f"{past_date}T00:00", "Sleep", sleep])
+                save_data([f"{past_date}T00:00", "Sleep", sleep, ""])
             if "Steps" not in existing_types:
-                save_data([f"{past_date}T00:00", "Steps", steps])
+                save_data([f"{past_date}T00:00", "Steps", steps, ""])
 
 
 if __name__ == "__main__":
