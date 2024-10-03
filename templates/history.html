@@ -45,21 +45,69 @@
                 font-size: 12px;
             }
         }
+        /* Add styles for the delete button */
+        .delete-button {
+            background-color: transparent;
+            border: none;
+            color: red;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .delete-button:hover {
+            color: darkred;
+        }
+        /* Add styles for the flash messages */
+        .flash-message {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        .flash-success {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+        .flash-error {
+            border-color: #f44336;
+            color: #f44336;
+        }
     </style>
 </head>
 <body>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="flash-message flash-success">
+              {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
     <h2>History (Last 20 Records)</h2>
     <table>
         <tr>
             <th>Date</th>
             <th>Type</th>
             <th>Value</th>
+            <th>Delete</th>
         </tr>
         {% for row in data %}
         <tr>
             <td>{{ row[0] }}</td>
             <td>{{ row[1] }}</td>
             <td>{{ row[2] }}</td>
+            <td>
+                <form action="{{ url_for('delete_record') }}" method="POST" style="display:inline;">
+                    <input type="hidden" name="date" value="{{ row[0] }}">
+                    <input type="hidden" name="type" value="{{ row[1] }}">
+                    <input type="hidden" name="value" value="{{ row[2] }}">
+                    <button type="submit" class="delete-button" title="Delete">&#10006;</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </table>

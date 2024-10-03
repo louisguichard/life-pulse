@@ -1,8 +1,8 @@
-from flask import Flask, session, render_template, request, redirect, url_for
+from flask import Flask, session, render_template, request, redirect, url_for, flash
 from datetime import datetime, timedelta
 import pytz
 
-from storage import load_data, save_data
+from storage import load_data, save_data, delete_data
 from fitbit import (
     fitbit_login,
     fitbit_callback,
@@ -94,6 +94,26 @@ def history():
     data = load_data()
     recent_data = data[::-1][:20]
     return render_template("history.html", data=recent_data)
+
+
+@app.route("/delete", methods=["POST"])
+def delete_record():
+    date = request.form.get("date")
+    record_type = request.form.get("type")
+    value = request.form.get("value")
+
+    if not date or not record_type or not value:
+        flash("Invalid data for deletion.")
+        return redirect(url_for("history"))
+
+    row = [date, record_type, value]
+    try:
+        delete_data(row)
+        flash("Record deleted successfully.")
+    except ValueError as e:
+        flash(str(e))
+
+    return redirect(url_for("history"))
 
 
 def save_fitbit_data():
