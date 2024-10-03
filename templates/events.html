@@ -59,7 +59,7 @@
 <body>
     <h2>Record Event</h2>
     <form method="post">
-        <input type="datetime-local" id="datetime" name="datetime" value="{{ current_time }}">
+        <input type="datetime-local" id="datetime" name="datetime" value="{{ current_time }}" step="3600">
         <div class="event-buttons">
             <button type="submit" name="event" value="Coffee" class="event-button">☕ Coffee</button>
             <button type="submit" name="event" value="Friends" class="event-button">👫 Friends</button>

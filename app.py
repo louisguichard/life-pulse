@@ -17,6 +17,13 @@ app.secret_key = "my_secret_key"
 paris_tz = pytz.timezone("Europe/Paris")
 
 
+def round_to_hour(dt):
+    "Rounds datetime to hour." ""
+    if dt.minute > 300:
+        dt += timedelta(hours=1)
+    return dt.replace(minute=0, second=0, microsecond=0)
+
+
 @app.route("/")
 def home():
     now = datetime.now(paris_tz)
@@ -39,8 +46,8 @@ def mood():
         save_data([date_time, "Mood", mood_value])
         return redirect(url_for("home"))
     else:
-        now = datetime.now(paris_tz).strftime("%Y-%m-%dT%H:%M")
-        return render_template("mood.html", current_time=now)
+        current_time = round_to_hour(datetime.now(paris_tz)).strftime("%Y-%m-%dT%H:00")
+        return render_template("mood.html", current_time=current_time)
 
 
 @app.route("/events", methods=["GET", "POST"])
@@ -51,8 +58,8 @@ def events():
         save_data([date_time, "Event", event])
         return redirect(url_for("home"))
     else:
-        now = datetime.now(paris_tz).strftime("%Y-%m-%dT%H:%M")
-        return render_template("events.html", current_time=now)
+        current_time = round_to_hour(datetime.now(paris_tz)).strftime("%Y-%m-%dT%H:00")
+        return render_template("events.html", current_time=current_time)
 
 
 @app.route("/health", methods=["GET", "POST"])
@@ -63,8 +70,8 @@ def health():
         save_data([date_time, "Health", condition])
         return redirect(url_for("home"))
     else:
-        now = datetime.now(paris_tz).strftime("%Y-%m-%dT%H:%M")
-        return render_template("health.html", current_time=now)
+        current_time = round_to_hour(datetime.now(paris_tz)).strftime("%Y-%m-%dT%H:00")
+        return render_template("health.html", current_time=current_time)
 
 
 # Fitbit routes

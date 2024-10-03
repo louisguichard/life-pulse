@@ -60,7 +60,7 @@
 <body>
     <h2>Record Health Condition</h2>
     <form method="post">
-        <input type="datetime-local" id="datetime" name="datetime" value="{{ current_time }}">
+        <input type="datetime-local" id="datetime" name="datetime" value="{{ current_time }}" step="3600">
         <div class="condition-buttons">
             <button type="submit" name="condition" value="Headache" class="condition-button">🤕 Headache</button>
             <button type="submit" name="condition" value="Stomachache" class="condition-button">🤢 Stomachache</button>
