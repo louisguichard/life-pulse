@@ -56,6 +56,11 @@
             color: black; /* Sets the text color to white */
             border-radius: 5px; /* Adds slight rounding to button corners */
         }
+        .current-mood {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333333; /* Sets the text color */
+        }
     </style>
 </head>
 <body>
@@ -85,6 +90,16 @@
                         <button class="secondary-button">📖<br>History</button> <!-- History button with emoji -->
                     </a>
                 </div>
+                <!-- Current Mood Display -->
+                {% if current_mood %}
+                    <div class="current-mood">
+                        Current Mood: <strong>{{ current_mood.value }}</strong><br>{{ current_mood.date_time }}
+                    </div>
+                {% else %}
+                    <div class="current-mood">
+                        Current Mood: <strong>Not available</strong>
+                    </div>
+                {% endif %}
             </div>
         {% endif %}
     </div>

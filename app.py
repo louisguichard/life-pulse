@@ -1,8 +1,9 @@
 from flask import Flask, session, render_template, request, redirect, url_for, flash
 from datetime import datetime, timedelta
 import pytz
+from babel.dates import format_datetime
 
-from storage import load_data, save_data, delete_data
+from storage import load_data, save_data, delete_data, get_latest_mood
 from fitbit import (
     fitbit_login,
     fitbit_callback,
@@ -24,19 +25,21 @@ def round_to_hour(dt):
     return dt.replace(minute=0, second=0, microsecond=0)
 
 
-# def format_date_french(date_str):
-#     """
-#     Formats a date string from 'YYYY-MM-DDTHH:MM' to 'EEEE d MMMM yyyy - HHh'
-#     Example: '2024-10-03T16:00' -> 'Jeudi 3 Octobre 2024 - 16h'
-#     """
-#     dt = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
-#     dt = paris_tz.localize(dt)
-#     return format_datetime(dt, "EEEE d MMMM yyyy - HH'h'", locale="fr")
+def format_date_french(date_str):
+    """
+    Formats a date string from 'YYYY-MM-DDTHH:MM' to 'EEEE d MMMM yyyy - HHh'
+    Example: '2024-10-03T16:00' -> 'Jeudi 3 Octobre 2024 - 16h'
+    """
+    dt = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
+    dt = paris_tz.localize(dt)
+    return format_datetime(dt, "EEEE d MMMM yyyy - HH'h'", locale="fr")
 
 
 @app.route("/")
 def home():
     now = datetime.now(paris_tz)
+    current_mood = get_latest_mood()
+    current_mood["date_time"] = format_date_french(current_mood["date_time"])
     if ("last_fitbit_check" not in session) or (
         now - session["last_fitbit_check"] >= timedelta(days=1)
     ):
@@ -44,8 +47,10 @@ def home():
             save_fitbit_data()
             session["last_fitbit_check"] = now
         except ValueError:
-            return render_template("home.html", fitbit_required=True)
-    return render_template("home.html")
+            return render_template(
+                "home.html", fitbit_required=True, current_mood=current_mood
+            )
+    return render_template("home.html", current_mood=current_mood)
 
 
 @app.route("/mood", methods=["GET", "POST"])
