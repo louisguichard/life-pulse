@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LifePulse - Record Health Condition</title>
+</head>
+<body>
+    <h2>Record Health Condition</h2>
+    <form method="post">
+        <label for="datetime">Date and Time:</label><br>
+        <input type="datetime-local" id="datetime" name="datetime" value="{{ current_time }}">
+        <br><br>
+        <label>Condition:</label><br>
+        <button type="submit" name="condition" value="Headache">Headache</button>
+        <button type="submit" name="condition" value="Stomachache">Stomachache</button>
+        <button type="submit" name="condition" value="Earache">Earache</button>
+    </form>
+</body>
+</html>

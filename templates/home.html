@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LifePulse</title>
+</head>
+<body>
+    <h1>LifePulse</h1>
+    {% if fitbit_required %}
+        <p>Fitbit connection is required.</p>
+        <a href="{{ url_for('fitbit_login') }}">Connect to Fitbit</a>
+    {% else %}
+        <div class="button-container"></div>
+            <a href="{{ url_for('mood') }}"><button data-icon="😊"><span>Mood</span></button></a>
+            <a href="{{ url_for('events') }}"><button data-icon="📅"><span>Events</span></button></a>
+            <a href="{{ url_for('health') }}"><button data-icon="🩺"><span>Health</span></button></a>
+            <a href="{{ url_for('dashboard') }}"><button data-icon="📊"><span>Dashboard</span></button></a>
+            <a href="{{ url_for('history') }}"><button data-icon="📖"><span>History</span></button></a>
+        </div>
+    {% endif %}
+</body>
+</html>

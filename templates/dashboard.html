@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LifePulse - Dashboard</title>
+</head>
+<body>
+    <h2>Dashboard</h2>
+    {% if fitbit_required %}
+        <p>You need to connect to Fitbit to see your data.</p>
+        <a href="{{ url_for('fitbit_login') }}">Connect to Fitbit</a>
+    {% else %}
+        <p><strong>Steps:</strong> {{ steps }}</p>
+        <p><strong>Sleep Time:</strong> {{ sleep }} hours</p>
+    {% endif %}
+</body>
+</html>

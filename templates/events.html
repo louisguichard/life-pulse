@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LifePulse - Record Event</title>
+</head>
+<body>
+    <h2>Record Event</h2>
+    <form method="post">
+        <label for="datetime">Date and Time:</label><br>
+        <input type="datetime-local" id="datetime" name="datetime" value="{{ current_time }}">
+        <br><br>
+        <label>Event:</label><br>
+        <button type="submit" name="event" value="Coffee">Coffee</button>
+        <button type="submit" name="event" value="Friends">Friends</button>
+        <button type="submit" name="event" value="Sport">Sport</button>
+    </form>
+</body>
+</html>

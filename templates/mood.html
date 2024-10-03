@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LifePulse - Record Mood</title>
+</head>
+<body>
+    <h2>Record Mood</h2>
+    <form method="post">
+        <label for="datetime">Date and Time:</label><br>
+        <input type="datetime-local" id="datetime" name="datetime" value="{{ current_time }}">
+        <br><br>
+        <label>Mood:</label><br>
+        {% for i in range(1, 11) %}
+            <button type="submit" name="mood" value="{{ i }}">{{ i }}</button>
+        {% endfor %}
+    </form>
+</body>
+</html>
