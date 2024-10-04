@@ -74,6 +74,29 @@
             border-color: #f44336;
             color: #f44336;
         }
+        /* Styles for buttons */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .button-container a {
+            text-decoration: none;
+            color: white;
+            background-color: #4CAF50;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 0 10px;
+        }
+        .button-container a.logout-button {
+            background-color: #f44336;
+        }
+        .button-container a.logout-button:hover {
+            background-color: #d32f2f;
+        }
+        .button-container a:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -115,9 +138,10 @@
         {% endfor %}
     </table>
 
-    <!-- Add Return to Home button -->
-    <div style="margin-top: 20px;">
-        <a href="{{ url_for('home') }}" style="text-decoration: none; color: white; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px;">Return to Home</a>
+    <!-- Button container for Return to Home and Logout buttons -->
+    <div class="button-container">
+        <a href="{{ url_for('home') }}">Return to Home</a>
+        <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
     </div>
 </body>
 </html>

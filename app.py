@@ -1,3 +1,4 @@
+import os
 from flask import Flask, session, render_template, request, redirect, url_for, flash
 from datetime import datetime, timedelta
 import pytz
@@ -9,7 +10,6 @@ from fitbit import (
     fitbit_callback,
     get_fitbit_data,
 )
-
 
 app = Flask(__name__)
 app.secret_key = "my_secret_key"
@@ -108,6 +108,8 @@ def dashboard():
 
 @app.route("/history")
 def history():
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
     data = load_data()
     recent_data = data[::-1][:20]
     # Undo date formatting for deletion to work correctly
@@ -132,6 +134,23 @@ def delete_record():
     except ValueError as e:
         flash(str(e), "error")
     return redirect(url_for("history"))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        if request.form["password"] == os.getenv("PASSWORD"):
+            session["logged_in"] = True
+            return redirect(url_for("history"))
+        else:
+            flash("Invalid password", "error")
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.pop("logged_in", None)
+    return redirect(url_for("home"))
 
 
 def save_fitbit_data():
