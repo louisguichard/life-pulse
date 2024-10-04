@@ -61,11 +61,39 @@
             font-size: 18px;
             color: #333333; /* Sets the text color */
         }
+        .flash-message {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            text-align: center;
+            font-size: 14px;
+        }
+        .flash-error {
+            border-color: #f44336;
+            color: #f44336;
+        }
+        .flash-success {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
     </style>
 </head>
 <body>
     <div class="container"> <!-- Main container to center content -->
         <h1>LifePulse</h1> <!-- Page heading -->
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash-message flash-{{ category }}">
+                  {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
         {% if fitbit_required %}
             <p>Fitbit connection is required.</p> <!-- Message indicating Fitbit connection is needed -->
             <a href="{{ url_for('fitbit_login') }}">Connect to Fitbit</a> <!-- Link to connect Fitbit -->

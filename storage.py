@@ -96,3 +96,28 @@ def get_latest_mood():
     )
     latest = mood_entries[0]
     return {"date_time": latest[0], "value": latest[2], "comment": latest[3]}
+
+
+def log_failed_attempt():
+    """
+    Logs the current timestamp as a failed login attempt.
+    """
+    bucket = storage_client.bucket(BUCKET_NAME)
+    blob = bucket.blob("last_failed_attempt.txt")
+    current_time = datetime.now().isoformat()
+    blob.upload_from_string(current_time)
+
+
+def get_last_failed_attempt():
+    """
+    Retrieves the timestamp of the last failed login attempt.
+
+    Returns:
+        datetime or None: The datetime of the last failed attempt, or None if not found.
+    """
+    bucket = storage_client.bucket(BUCKET_NAME)
+    blob = bucket.blob("last_failed_attempt.txt")
+    if not blob.exists():
+        return None
+    last_attempt = blob.download_as_text().strip()
+    return datetime.fromisoformat(last_attempt)

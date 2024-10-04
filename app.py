@@ -4,7 +4,14 @@ from datetime import datetime, timedelta
 import pytz
 from babel.dates import format_datetime
 
-from storage import load_data, save_data, delete_data, get_latest_mood
+from storage import (
+    load_data,
+    save_data,
+    delete_data,
+    get_latest_mood,
+    log_failed_attempt,
+    get_last_failed_attempt,
+)
 from fitbit import (
     fitbit_login,
     fitbit_callback,
@@ -138,12 +145,18 @@ def delete_record():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    last_attempt = get_last_failed_attempt()
+    if last_attempt and datetime.now() < last_attempt + timedelta(hours=24):
+        flash("Try again later.", "error")
+        return render_template("home.html")
     if request.method == "POST":
         if request.form["password"] == os.getenv("PASSWORD"):
             session["logged_in"] = True
             return redirect(url_for("history"))
         else:
+            log_failed_attempt()
             flash("Invalid password", "error")
+            return render_template("home.html")
     return render_template("login.html")
 
 
