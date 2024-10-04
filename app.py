@@ -67,6 +67,7 @@ def mood():
         mood_value = request.form["mood"]
         comment = request.form.get("comment", "")
         save_data([date_time, "Mood", mood_value, comment])
+        flash("Mood logged successfully.", "success")
         return redirect(url_for("home"))
     else:
         current_time = round_to_hour(datetime.now(paris_tz)).strftime("%Y-%m-%dT%H:00")
@@ -79,6 +80,7 @@ def events():
         date_time = request.form["datetime"]
         event = request.form["event"]
         save_data([date_time, "Event", event, ""])
+        flash("Event logged successfully.", "success")
         return redirect(url_for("home"))
     else:
         current_time = round_to_hour(datetime.now(paris_tz)).strftime("%Y-%m-%dT%H:00")
@@ -91,6 +93,7 @@ def health():
         date_time = request.form["datetime"]
         condition = request.form["condition"]
         save_data([date_time, "Health", condition, ""])
+        flash("Health condition logged successfully.", "success")
         return redirect(url_for("home"))
     else:
         current_time = round_to_hour(datetime.now(paris_tz)).strftime("%Y-%m-%dT%H:00")
