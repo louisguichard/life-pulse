@@ -118,6 +118,13 @@
         button:hover {
             background-color: #45a049;
         }
+        
+        /* New media query for small screens */
+        @media (max-width: 500px) {
+            .comment-section {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -148,7 +155,9 @@
         </div>
         
         <!-- Comment Section -->
-        <textarea name="comment" placeholder="Add a comment (optional)" value="{{ comment }}"></textarea>
+        <div class="comment-section">
+            <textarea name="comment" placeholder="Add a comment (optional)" value="{{ comment }}"></textarea>
+        </div>
         
         <!-- Submit Button -->
         <button type="submit">Validate</button>
