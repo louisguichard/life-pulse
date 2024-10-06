@@ -1,102 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifePulse - Record Event</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 200;
-            background-color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            padding: 20px;
-        }
-        h2 {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 400px;
-        }
-        /* Container for Date and Hour */
-        .datetime-container {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 300px;
-            margin-bottom: 20px;
-        }
-        /* Styles for Date and Hour Select */
-        .datetime-container input,
-        .datetime-container select {
-            width: 48%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 200;
-        }
-        .event-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-        }
-        .event-button {
-            padding: 10px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            background-color: #2196F3;
-            color: white;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        .event-button:hover {
-            background-color: #1976D2;
-        }
-    </style>
-</head>
-<body>
-    <h2>Record Event</h2>
-    <form method="post">
-        <div class="datetime-container">
-            <input type="date" name="date" required value="{{ current_date }}">
-            <select name="hour" required>
-                <option value="">Select hour</option>
-                {% for hour in range(0, 24) %}
-                    <option value="{{ "%02d" % hour }}" {% if hour == current_hour %}selected{% endif %}>{{ hour }}h</option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <div class="event-buttons">
-            <button type="submit" name="event" value="Coffee" class="event-button">☕ Coffee</button>
-            <button type="submit" name="event" value="Friends" class="event-button">👫 Friends</button>
-            <button type="submit" name="event" value="Sport" class="event-button">🏃 Sport</button>
-            <button type="submit" name="event" value="Meditation" class="event-button">🧘 Meditation</button>
-            <button type="submit" name="event" value="Fast Food" class="event-button">🍔 Fast Food</button>
-        </div>
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Event{% endblock %}
+
+{% block header %}Event{% endblock %}
+
+{% block form_content %}
+    <div class="button-grid">
+        <button type="submit" name="event" value="Coffee" class="custom-button">☕ Coffee</button>
+        <button type="submit" name="event" value="Friends" class="custom-button">👫 Friends</button>
+        <button type="submit" name="event" value="Sport" class="custom-button">🏃 Sport</button>
+        <button type="submit" name="event" value="Meditation" class="custom-button">🧘 Meditation</button>
+        <button type="submit" name="event" value="Fast Food" class="custom-button">🍔 Fast Food</button>
+    </div>
+{% endblock %}

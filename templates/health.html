@@ -1,102 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifePulse - Record Health Condition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 200;
-            background-color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            padding: 20px;
-        }
-        h2 {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 400px;
-        }
-        /* Container for Date and Hour */
-        .datetime-container {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 300px;
-            margin-bottom: 20px;
-        }
-        /* Styles for Date and Hour Select */
-        .datetime-container input,
-        .datetime-container select {
-            width: 48%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 200;
-        }
-        .condition-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .condition-button {
-            width: 150px;
-            padding: 10px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            background-color: #DC143C; /* Crimson */
-            color: white;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        .condition-button:hover {
-            background-color: #B22222; /* Firebrick */
-        }
-    </style>
-</head>
-<body>
-    <h2>Record Health Condition</h2>
-    <form method="post">
-        <div class="datetime-container">
-            <input type="date" name="date" required value="{{ current_date }}">
-            <select name="hour" required>
-                <option value="">Select hour</option>
-                {% for hour in range(0, 24) %}
-                    <option value="{{ "%02d" % hour }}" {% if hour == current_hour %}selected{% endif %}>{{ hour }}h</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="condition-buttons">
-            <button type="submit" name="condition" value="Headache" class="condition-button">🤕 Headache</button>
-            <button type="submit" name="condition" value="Stomachache" class="condition-button">🤢 Stomachache</button>
-            <button type="submit" name="condition" value="Earache" class="condition-button">👂 Earache</button>
-            <button type="submit" name="condition" value="Insomnia" class="condition-button">😴 Insomnia</button>
-        </div>
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Health{% endblock %}
+
+{% block header %}Healthn{% endblock %}
+
+{% block additional_styles %}
+    .custom-button {
+        background-color: #DC143C;
+    }
+    .custom-button:hover {
+        background-color: #B22222;
+    }
+{% endblock %}
+
+{% block form_content %}
+    <div class="button-grid">
+        <button type="submit" name="condition" value="Headache" class="custom-button">🤕 Headache</button>
+        <button type="submit" name="condition" value="Stomachache" class="custom-button">🤢 Stomachache</button>
+        <button type="submit" name="condition" value="Earache" class="custom-button">👂 Earache</button>
+        <button type="submit" name="condition" value="Insomnia" class="custom-button">😴 Insomnia</button>
+    </div>
+{% endblock %}
