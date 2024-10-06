@@ -19,7 +19,7 @@ from fitbit import (
 )
 
 app = Flask(__name__)
-app.secret_key = "my_secret_key"
+app.secret_key = os.getenv("APP_SECRET_KEY")
 
 # Timezone for Paris
 paris_tz = pytz.timezone("Europe/Paris")
@@ -122,12 +122,6 @@ def history():
         return redirect(url_for("login"))
     data = load_data()
     recent_data = data[::-1][:20]
-    # Undo date formatting for deletion to work correctly
-    # formatted_data = []
-    # for row in recent_data:
-    # formatted_date = format_date_french(row[0])
-    # formatted_row = [formatted_date, row[1], row[2], row[3]]
-    # formatted_data.append(formatted_row)
     return render_template("history.html", data=recent_data)
 
 
