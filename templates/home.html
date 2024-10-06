@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"> <!-- Sets the character encoding for the document -->
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifePulse</title> <!-- Sets the title of the page -->
+    <title>LifePulse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap" rel="stylesheet">
     <style>
-        /* CSS Reset to remove default margins and paddings */
         * {
             margin: 0;
             padding: 0;
@@ -16,7 +16,8 @@
             justify-content: center; /* Centers content horizontally */
             align-items: center; /* Centers content vertically */
             height: 100vh; /* Sets the height to 100% of the viewport height */
-            font-family: Arial, sans-serif; /* Sets the font family */
+            font-family: 'Montserrat', sans-serif; /* Sets the font family to Montserrat */
+            font-weight: 200; /* Sets the font weight to ExtraLight */
         }
         .container {
             text-align: center; /* Centers text inside the container */
@@ -39,7 +40,7 @@
             font-size: 20px; /* Increases the font size for visibility */
             border: none; /* Removes the default border */
             cursor: pointer; /* Changes cursor to pointer on hover */
-            background-color: #d5d34d; /* Sets a yellow background color */
+            background-color: #fffd82; /* Sets a yellow background color */
             color: black; /* Sets the text color to black */
         }
         .secondary-buttons {
@@ -52,12 +53,12 @@
             font-size: 16px; /* Sets the font size */
             border: none; /* Removes the default border */
             cursor: pointer; /* Changes cursor to pointer on hover */
-            background-color: #c7c7c7; /* Sets a blue background color */
-            color: black; /* Sets the text color to white */
+            background-color: #f1f1f1; /* Sets a gray background color */
+            color: black; /* Sets the text color to black */
             border-radius: 5px; /* Adds slight rounding to button corners */
         }
         .current-mood {
-            margin-top: 20px;
+            margin-top: 10px;
             font-size: 18px;
             color: #333333; /* Sets the text color */
         }
@@ -124,7 +125,7 @@
                 <!-- Current Mood Display -->
                 {% if current_mood %}
                     <div class="current-mood">
-                        Current Mood: <strong>{{ current_mood.value }}</strong><br>{{ current_mood.date_time }}
+                        Current Mood: <strong>{{ current_mood }}</strong>
                     </div>
                 {% else %}
                     <div class="current-mood">

@@ -2,7 +2,6 @@ import os
 from flask import Flask, session, render_template, request, redirect, url_for, flash
 from datetime import datetime, timedelta
 import pytz
-from babel.dates import format_datetime
 
 from storage import (
     load_data,
@@ -32,21 +31,10 @@ def round_to_hour(dt):
     return dt.replace(minute=0, second=0, microsecond=0)
 
 
-def format_date_french(date_str):
-    """
-    Formats a date string from 'YYYY-MM-DDTHH:MM' to 'EEEE d MMMM yyyy - HHh'
-    Example: '2024-10-03T16:00' -> 'Jeudi 3 Octobre 2024 - 16h'
-    """
-    dt = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
-    dt = paris_tz.localize(dt)
-    return format_datetime(dt, "EEEE d MMMM yyyy - HH'h'", locale="fr")
-
-
 @app.route("/")
 def home():
     now = datetime.now(paris_tz)
     current_mood = get_latest_mood()
-    current_mood["date_time"] = format_date_french(current_mood["date_time"])
     if ("last_fitbit_check" not in session) or (
         now - session["last_fitbit_check"] >= timedelta(days=1)
     ):
@@ -63,41 +51,59 @@ def home():
 @app.route("/mood", methods=["GET", "POST"])
 def mood():
     if request.method == "POST":
-        date_time = request.form["datetime"]
+        date = request.form["date"]
+        hour = request.form["hour"]
         mood_value = request.form["mood"]
         comment = request.form.get("comment", "")
+        date_time = f"{date} - {hour}h"
         save_data([date_time, "Mood", mood_value, comment])
         flash("Mood logged successfully.", "success")
         return redirect(url_for("home"))
     else:
-        current_time = round_to_hour(datetime.now(paris_tz)).strftime("%Y-%m-%dT%H:00")
-        return render_template("mood.html", current_time=current_time)
+        now = datetime.now(paris_tz)
+        current_date = now.strftime("%Y-%m-%d")
+        current_hour = now.hour
+        return render_template(
+            "mood.html", current_date=current_date, current_hour=current_hour
+        )
 
 
 @app.route("/events", methods=["GET", "POST"])
 def events():
     if request.method == "POST":
-        date_time = request.form["datetime"]
+        date = request.form["date"]
+        hour = request.form["hour"]
         event = request.form["event"]
+        date_time = f"{date} - {hour}h"
         save_data([date_time, "Event", event, ""])
         flash("Event logged successfully.", "success")
         return redirect(url_for("home"))
     else:
-        current_time = round_to_hour(datetime.now(paris_tz)).strftime("%Y-%m-%dT%H:00")
-        return render_template("events.html", current_time=current_time)
+        now = datetime.now(paris_tz)
+        current_date = now.strftime("%Y-%m-%d")
+        current_hour = now.hour
+        return render_template(
+            "events.html", current_date=current_date, current_hour=current_hour
+        )
 
 
 @app.route("/health", methods=["GET", "POST"])
 def health():
     if request.method == "POST":
-        date_time = request.form["datetime"]
+        date = request.form["date"]
+        hour = request.form["hour"]
         condition = request.form["condition"]
+        date_time = f"{date} - {hour}h"
         save_data([date_time, "Health", condition, ""])
         flash("Health condition logged successfully.", "success")
         return redirect(url_for("home"))
     else:
-        current_time = round_to_hour(datetime.now(paris_tz)).strftime("%Y-%m-%dT%H:00")
-        return render_template("health.html", current_time=current_time)
+        now = datetime.now(paris_tz)
+        current_date = now.strftime("%Y-%m-%d")
+        current_hour = now.hour
+        return render_template(
+            "health.html", current_date=current_date, current_hour=current_hour
+        )
 
 
 # Fitbit routes

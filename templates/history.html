@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifePulse - History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -15,7 +16,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-family: Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif; 
+            font-weight: 200;
             background-color: white;
             padding: 20px;
         }
@@ -24,7 +26,7 @@
         }
         table {
             width: 100%;
-            max-width: 800px; /* Increased max-width to accommodate the Comment column */
+            max-width: 800px;
             border-collapse: collapse;
         }
         th, td {
@@ -36,7 +38,7 @@
         th {
             background-color: #f2f2f2;
         }
-        @media (max-width: 600px) { /* Adjusted breakpoint to better handle larger tables */
+        @media (max-width: 600px) { 
             table {
                 max-width: 100%;
             }
@@ -97,6 +99,17 @@
         .button-container a:hover {
             background-color: #45a049;
         }
+        /* Styles for comment toggle */
+        .comment-full {
+            display: none;
+        }
+        .comment-cell {
+            cursor: pointer;
+            position: relative;
+        }
+        .comment-cell:hover {
+            background-color: #f9f9f9;
+        }
     </style>
 </head>
 <body>
@@ -124,7 +137,13 @@
             <td>{{ row[0] }}</td>
             <td>{{ row[1] }}</td>
             <td>{{ row[2] }}</td>
-            <td>{{ row[3] }}</td> <!-- Displaying the Comment -->
+            <td class="comment-cell">
+                {% if row[3] %}
+                    {% set truncated = row[3][:50] %}
+                    <span class="comment-truncated">{{ truncated }}{% if row[3]|length > 50 %}...{% endif %}</span>
+                    <span class="comment-full">{{ row[3] }}</span>
+                {% endif %}
+            </td> 
             <td>
                 <form action="{{ url_for('delete_record') }}" method="POST" style="display:inline;">
                     <input type="hidden" name="date" value="{{ row[0] }}">
@@ -143,5 +162,27 @@
         <a href="{{ url_for('home') }}">Return to Home</a>
         <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
     </div>
+
+    <!-- JavaScript for toggling comments -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const commentCells = document.querySelectorAll('.comment-cell');
+
+            commentCells.forEach(function(cell) {
+                cell.addEventListener('click', function() {
+                    const truncated = cell.querySelector('.comment-truncated');
+                    const full = cell.querySelector('.comment-full');
+
+                    if (full.style.display === 'none' || full.style.display === '') {
+                        full.style.display = 'inline';
+                        truncated.style.display = 'none';
+                    } else {
+                        full.style.display = 'none';
+                        truncated.style.display = 'inline';
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

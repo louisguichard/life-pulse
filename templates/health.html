@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifePulse - Record Health Condition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,37 +12,57 @@
             box-sizing: border-box;
         }
         body {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 200;
+            background-color: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            font-family: Arial, sans-serif;
-            background-color: white;
+            padding: 20px;
         }
         h2 {
             margin-bottom: 20px;
+            text-align: center;
         }
         form {
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
+            max-width: 400px;
         }
-        input[type="datetime-local"] {
-            padding: 8px;
-            font-size: 16px;
-            margin-bottom: 20px;
+        /* Container for Date and Hour */
+        .datetime-container {
+            display: flex;
+            justify-content: space-between;
             width: 100%;
             max-width: 300px;
+            margin-bottom: 20px;
+        }
+        /* Styles for Date and Hour Select */
+        .datetime-container input,
+        .datetime-container select {
+            width: 48%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 200;
         }
         .condition-buttons {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
+            margin-bottom: 20px;
         }
         .condition-button {
-            padding: 10px 20px;
+            width: 150px;
+            padding: 10px;
             font-size: 16px;
             border: none;
             cursor: pointer;
@@ -61,7 +82,15 @@
 <body>
     <h2>Record Health Condition</h2>
     <form method="post">
-        <input type="datetime-local" id="datetime" name="datetime" value="{{ current_time }}" step="3600">
+        <div class="datetime-container">
+            <input type="date" name="date" required value="{{ current_date }}">
+            <select name="hour" required>
+                <option value="">Select hour</option>
+                {% for hour in range(0, 24) %}
+                    <option value="{{ "%02d" % hour }}" {% if hour == current_hour %}selected{% endif %}>{{ hour }}h</option>
+                {% endfor %}
+            </select>
+        </div>
         <div class="condition-buttons">
             <button type="submit" name="condition" value="Headache" class="condition-button">🤕 Headache</button>
             <button type="submit" name="condition" value="Stomachache" class="condition-button">🤢 Stomachache</button>

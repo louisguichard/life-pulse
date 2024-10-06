@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifePulse - Record Mood</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,39 +12,71 @@
             box-sizing: border-box;
         }
         body {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 200;
+            background-color: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            font-family: Arial, sans-serif;
-            background-color: white;
+            padding: 20px;
         }
         h2 {
             margin-bottom: 20px;
+            text-align: center;
         }
         form {
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
+            max-width: 400px;
         }
-        input[type="datetime-local"],
-        textarea {
-            padding: 8px;
-            font-size: 16px;
-            margin-bottom: 20px;
+        /* Container for Date and Hour */
+        .datetime-container {
+            display: flex;
+            justify-content: space-between;
             width: 100%;
             max-width: 300px;
+            margin-bottom: 20px;
+        }
+        /* Styles for Date and Hour Select */
+        .datetime-container input,
+        .datetime-container select {
+            width: 48%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 200;
+        }
+        textarea, button {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 200;
         }
         textarea {
-            resize: vertical;
             height: 50px;
+            resize: vertical;
         }
         .mood-buttons {
             display: grid;
             grid-template-columns: repeat(5, 60px);
             gap: 10px;
-            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .mood-buttons input[type="radio"] {
+            display: none;
         }
         .mood-button {
             width: 60px;
@@ -53,7 +86,16 @@
             font-size: 18px;
             cursor: pointer;
             border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s;
         }
+        .mood-buttons input[type="radio"]:checked + label {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        /* Mood colors */
         .mood-1 { background-color: #ab0101; }
         .mood-2 { background-color: #d00f0f; }
         .mood-3 { background-color: #eb3030; }
@@ -64,32 +106,52 @@
         .mood-8 { background-color: #0fbf0f; }
         .mood-9 { background-color: #05a405; }
         .mood-10 { background-color: #007900; }
-        @media (max-width: 400px) {
-            .mood-buttons {
-                grid-template-columns: repeat(2, 50px);
-            }
-            .mood-button {
-                width: 50px;
-                height: 50px;
-                font-size: 16px;
-            }
+        /* Submit button */
+        button {
+            background-color: #517cff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
     <h2>Record Mood</h2>
     <form method="post">
-        <input type="datetime-local" id="datetime" name="datetime" value="{{ current_time }}" step="3600">
+        <!-- Date and Hour Inputs Container -->
+        <div class="datetime-container">
+            <!-- Date Input -->
+            <input type="date" name="date" required value="{{ current_date }}">
+            
+            <!-- Hour Selection -->
+            <select name="hour" required>
+                <option value="">Select hour</option>
+                {% for hour in range(0, 24) %}
+                    <option value="{{ "%02d" % hour }}" {% if hour == current_hour %}selected{% endif %}>{{ hour }}h</option>
+                {% endfor %}
+            </select>
+        </div>
         
-        <textarea id="comment" name="comment" placeholder="Add a comment (optional)"></textarea>
-        
+        <!-- Mood Selection -->
         <div class="mood-buttons">
             {% for i in range(1, 11) %}
-                <button type="submit" name="mood" value="{{ i }}" class="mood-button mood-{{ i }}">
+                <input type="radio" id="mood{{ i }}" name="mood" value="{{ i }}" required>
+                <label for="mood{{ i }}" class="mood-button mood-{{ i }}">
                     {{ i }}
-                </button>
+                </label>
             {% endfor %}
         </div>
+        
+        <!-- Comment Section -->
+        <textarea name="comment" placeholder="Add a comment (optional)" value="{{ comment }}"></textarea>
+        
+        <!-- Submit Button -->
+        <button type="submit">Validate</button>
     </form>
 </body>
 </html>
