@@ -7,7 +7,7 @@
 |______|_|_| \___|_|    \__,_|_|___/\___|
 ```
 
-LifePulse is a life habit and health tracker application that integrates with Fitbit to monitor mood, daily events, health condition, activity, sleep, heart rate, and weight. 
+LifePulse is a life habit and health tracker that integrates with Fitbit to monitor mood, daily events, health condition, activity, sleep, heart rate, and weight. 
 
 ## Installation
 
@@ -20,7 +20,7 @@ LifePulse is a life habit and health tracker application that integrates with Fi
 2. **Set Up Environment Variables:**
    Create a `.env` file in the root directory and add the following:
    ```env
-    APP_ENV=production # or 'local' for development
+   APP_ENV=production # or 'local' for development
    APP_SECRET_KEY=your_flask_app_secret_key
    FITBIT_CLIENT_ID=your_fitbit_client_id
    FITBIT_CLIENT_SECRET=your_fitbit_client_secret
