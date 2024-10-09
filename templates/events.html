@@ -5,13 +5,16 @@
 {% block header %}Event{% endblock %}
 
 {% block form_content %}
-    <div class="button-grid">
-        <button type="submit" name="event" value="Coffee" class="custom-button">☕ Coffee</button>
-        <button type="submit" name="event" value="Friends" class="custom-button">👫 Friends</button>
-        <button type="submit" name="event" value="Family" class="custom-button">👪 Family</button>
-        <button type="submit" name="event" value="Sport" class="custom-button">🏃 Sport</button>
-        <button type="submit" name="event" value="Meditation" class="custom-button">🧘 Meditation</button>
-        <button type="submit" name="event" value="Reading" class="custom-button">📖 Reading</button>
-        <button type="submit" name="event" value="Fast Food" class="custom-button">🍔 Fast Food</button>
+    <div id="main-buttons" class="button-grid">
+        <button type="button" class="custom-button" data-event="Coffee">☕ Coffee</button>
+        <button type="button" class="custom-button" data-event="Friends">👫 Friends</button>
+        <button type="button" class="custom-button" data-event="Family">👪 Family</button>
+        <button type="button" class="custom-button" data-event="Sport">🏃 Sport</button>
+        <button type="button" class="custom-button" data-event="Meditation">🧘 Meditation</button>
+        <button type="button" class="custom-button" data-event="Reading">📖 Reading</button>
+        <button type="button" class="custom-button" data-event="Fast Food">🍔 Fast Food</button>
     </div>
+    <div id="sub-buttons" class="button-grid" style="display: none;"></div>
+    <button type="button" id="back-button" class="custom-button" style="display: none;">🔙 Back</button>
+    <input type="hidden" name="event" id="selected-event" value="">
 {% endblock %}

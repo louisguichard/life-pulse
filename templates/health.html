@@ -2,7 +2,7 @@
 
 {% block title %}Health{% endblock %}
 
-{% block header %}Healthn{% endblock %}
+{% block header %}Health{% endblock %}
 
 {% block additional_styles %}
     .custom-button {
@@ -14,10 +14,13 @@
 {% endblock %}
 
 {% block form_content %}
-    <div class="button-grid">
-        <button type="submit" name="condition" value="Headache" class="custom-button">🤕 Headache</button>
-        <button type="submit" name="condition" value="Stomachache" class="custom-button">🤢 Stomachache</button>
-        <button type="submit" name="condition" value="Earache" class="custom-button">👂 Earache</button>
-        <button type="submit" name="condition" value="Insomnia" class="custom-button">😴 Insomnia</button>
+    <div id="main-buttons" class="button-grid">
+        <button type="button" class="custom-button" data-event="Headache">🤕 Headache</button>
+        <button type="button" class="custom-button" data-event="Stomachache">🤢 Stomachache</button>
+        <button type="button" class="custom-button" data-event="Earache">👂 Earache</button>
+        <button type="button" class="custom-button" data-event="Insomnia">😴 Insomnia</button>
     </div>
+    <div id="sub-buttons" class="button-grid" style="display: none;"></div>
+    <button type="button" id="back-button" class="custom-button" style="display: none;">🔙 Back</button>
+    <input type="hidden" name="condition" id="selected-event" value="">
 {% endblock %}
