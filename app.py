@@ -33,18 +33,7 @@ def round_to_hour(dt):
 
 @app.route("/")
 def home():
-    now = datetime.now(paris_tz)
     current_mood = get_latest_mood()
-    if ("last_fitbit_check" not in session) or (
-        now - session["last_fitbit_check"] >= timedelta(days=1)
-    ):
-        try:
-            save_fitbit_data()
-            session["last_fitbit_check"] = now
-        except ValueError:
-            return render_template(
-                "home.html", fitbit_required=True, current_mood=current_mood
-            )
     return render_template("home.html", current_mood=current_mood)
 
 
@@ -113,9 +102,14 @@ app.add_url_rule("/fitbit_callback", "fitbit_callback", fitbit_callback)
 
 @app.route("/dashboard")
 def dashboard():
-    date = datetime.now(paris_tz).strftime("%Y-%m-%d")
+    now = datetime.now(paris_tz)
+    if ("last_fitbit_check" not in session) or (
+        now - session["last_fitbit_check"] >= timedelta(days=1)
+    ):
+        save_fitbit_data()
+        session["last_fitbit_check"] = now
     try:
-        steps, sleep = get_fitbit_data(date)
+        steps, sleep = get_fitbit_data(now.strftime("%Y-%m-%d"))
     except ValueError:
         flash("Failed to retrieve Fitbit data.", "error")
         return render_template("dashboard.html", fitbit_required=True)
