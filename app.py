@@ -1,4 +1,5 @@
 import os
+import json
 from flask import Flask, session, render_template, request, redirect, url_for, flash
 from datetime import datetime, timedelta
 import pytz
@@ -22,6 +23,10 @@ app.secret_key = os.getenv("APP_SECRET_KEY")
 
 # Timezone for Paris
 paris_tz = pytz.timezone("Europe/Paris")
+
+# Load config
+with open("config.json", "r") as file:
+    config = json.load(file)
 
 
 def round_to_hour(dt):
@@ -71,8 +76,12 @@ def events():
         now = datetime.now(paris_tz)
         current_date = now.strftime("%Y-%m-%d")
         current_hour = now.hour
+        events = config.get("events", {})
         return render_template(
-            "events.html", current_date=current_date, current_hour=current_hour
+            "events.html",
+            current_date=current_date,
+            current_hour=current_hour,
+            events=events,
         )
 
 
@@ -90,8 +99,12 @@ def health():
         now = datetime.now(paris_tz)
         current_date = now.strftime("%Y-%m-%d")
         current_hour = now.hour
+        events = config.get("health", {})
         return render_template(
-            "health.html", current_date=current_date, current_hour=current_hour
+            "health.html",
+            current_date=current_date,
+            current_hour=current_hour,
+            events=events,
         )
 
 

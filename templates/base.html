@@ -95,17 +95,18 @@
     {% block additional_scripts %}
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const eventSubOptions = {
-                "Friends": ["Pierre", "Paul", "Jacques", "Other"],
-                "Family": ["Papa", "Maman", "Other"],
-                "Sport": ["Running", "Swimming", "Cycling", "Other"]
-            };
+            const eventSubOptions = {{ events | tojson | safe }};
 
             const mainButtonsDiv = document.querySelectorAll('#main-buttons, .button-grid')[0];
             const subButtonsDiv = document.getElementById('sub-buttons');
             const backButton = document.getElementById('back-button');
             const selectedEventInput = document.getElementById('selected-event');
             const form = mainButtonsDiv.closest('form');
+
+            // Function to strip emojis from a string
+            const stripEmojis = (str) => {
+                return str.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C-\uDBFF\uDC00-\uDFFF])/g, '').trim();
+            };
 
             if (mainButtonsDiv) {
                 const handleMainButtonClick = (event) => {
@@ -168,7 +169,8 @@
 
             const submitEvent = (eventValue) => {
                 if (selectedEventInput) {
-                    selectedEventInput.value = eventValue;
+                    const cleanEventValue = stripEmojis(eventValue);
+                    selectedEventInput.value = cleanEventValue;
                 }
                 form.submit();
             };

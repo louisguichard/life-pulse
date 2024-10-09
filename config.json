@@ -1,0 +1,31 @@
+{
+    "events": {
+        "Coffee ☕": [],
+        "Friends 👫": [
+            "Pierre",
+            "Paul",
+            "Jacques",
+            "Other"
+        ],
+        "Family 👪": [
+            "Papa",
+            "Maman",
+            "Other"
+        ],
+        "Sport 🏃": [
+            "Running",
+            "Swimming",
+            "Cycling",
+            "Other"
+        ],
+        "Meditation 🧘": [],
+        "Reading 📖": [],
+        "Fast Food 🍔": []
+    },
+    "health": {
+        "Headache 🤕": [],
+        "Stomachache 🤢": [],
+        "Earache 👂": [],
+        "Insomnia 😴": []
+    }
+}

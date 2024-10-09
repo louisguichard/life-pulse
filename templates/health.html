@@ -15,10 +15,9 @@
 
 {% block form_content %}
     <div id="main-buttons" class="button-grid">
-        <button type="button" class="custom-button" data-event="Headache">🤕 Headache</button>
-        <button type="button" class="custom-button" data-event="Stomachache">🤢 Stomachache</button>
-        <button type="button" class="custom-button" data-event="Earache">👂 Earache</button>
-        <button type="button" class="custom-button" data-event="Insomnia">😴 Insomnia</button>
+        {% for condition, sub_conditions in events.items() %}
+            <button type="button" class="custom-button" data-event="{{ condition }}">{{ condition }}</button>
+        {% endfor %}
     </div>
     <div id="sub-buttons" class="button-grid" style="display: none;"></div>
     <button type="button" id="back-button" class="custom-button" style="display: none;">🔙 Back</button>
