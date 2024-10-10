@@ -113,7 +113,7 @@
                         const button = event.target.closest('button.custom-button');
                         if (button) {
                             const selectedEvent = button.dataset.event || button.value;
-                            if (eventSubOptions[selectedEvent]) {
+                            if (eventSubOptions[selectedEvent] && eventSubOptions[selectedEvent].length > 0) {
                                 displaySubOptions(selectedEvent);
                             } else {
                                 submitEvent(selectedEvent);
