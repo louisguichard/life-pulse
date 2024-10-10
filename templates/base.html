@@ -93,89 +93,91 @@
     </form>
 
     {% block additional_scripts %}
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const eventSubOptions = {{ events | tojson | safe }};
+      {% if events is defined %}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const eventSubOptions = {{ events | tojson | safe }};
 
-            const mainButtonsDiv = document.querySelectorAll('#main-buttons, .button-grid')[0];
-            const subButtonsDiv = document.getElementById('sub-buttons');
-            const backButton = document.getElementById('back-button');
-            const selectedEventInput = document.getElementById('selected-event');
-            const form = mainButtonsDiv.closest('form');
+                const mainButtonsDiv = document.querySelectorAll('#main-buttons, .button-grid')[0];
+                const subButtonsDiv = document.getElementById('sub-buttons');
+                const backButton = document.getElementById('back-button');
+                const selectedEventInput = document.getElementById('selected-event');
+                const form = mainButtonsDiv.closest('form');
 
-            // Function to strip emojis from a string
-            const stripEmojis = (str) => {
-                return str.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C-\uDBFF\uDC00-\uDFFF])/g, '').trim();
-            };
-
-            if (mainButtonsDiv) {
-                const handleMainButtonClick = (event) => {
-                    const button = event.target.closest('button.custom-button');
-                    if (button) {
-                        const selectedEvent = button.dataset.event || button.value;
-                        if (eventSubOptions[selectedEvent]) {
-                            displaySubOptions(selectedEvent);
-                        } else {
-                            submitEvent(selectedEvent);
-                        }
-                    }
+                // Function to strip emojis from a string
+                const stripEmojis = (str) => {
+                    return str.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C-\uDBFF\uDC00-\uDFFF])/g, '').trim();
                 };
 
-                mainButtonsDiv.addEventListener('click', handleMainButtonClick);
-            }
-
-            if (subButtonsDiv) {
-                const handleSubButtonClick = (event) => {
-                    const button = event.target.closest('button.custom-button');
-                    if (button) {
-                        const selectedSubEvent = button.dataset.subEvent;
-                        if (selectedSubEvent === "Other") {
-                            const customSubEvent = prompt("Enter your custom event:");
-                            if (customSubEvent) {
-                                submitEvent(`${subButtonsDiv.dataset.parentEvent} - ${customSubEvent}`);
+                if (mainButtonsDiv) {
+                    const handleMainButtonClick = (event) => {
+                        const button = event.target.closest('button.custom-button');
+                        if (button) {
+                            const selectedEvent = button.dataset.event || button.value;
+                            if (eventSubOptions[selectedEvent]) {
+                                displaySubOptions(selectedEvent);
+                            } else {
+                                submitEvent(selectedEvent);
                             }
-                        } else {
-                            submitEvent(`${subButtonsDiv.dataset.parentEvent} - ${selectedSubEvent}`);
                         }
-                    }
-                };
+                    };
 
-                subButtonsDiv.addEventListener('click', handleSubButtonClick);
-            }
-
-            if (backButton) {
-                const hideSubOptions = () => {
-                    subButtonsDiv.style.display = 'none';
-                    backButton.style.display = 'none';
-                    mainButtonsDiv.style.display = 'flex';
-                    subButtonsDiv.dataset.parentEvent = '';
-                    subButtonsDiv.innerHTML = '';
-                };
-
-                backButton.addEventListener('click', hideSubOptions);
-            }
-
-            const displaySubOptions = (eventName) => {
-                mainButtonsDiv.style.display = 'none';
-                backButton.style.display = 'flex';
-                subButtonsDiv.dataset.parentEvent = eventName;
-                subButtonsDiv.innerHTML = eventSubOptions[eventName].map(subEvent => 
-                    `<button type="button" class="custom-button" data-sub-event="${subEvent}">
-                        ${subEvent === "Other" ? subEvent : subEvent}
-                    </button>`
-                ).join('');
-                subButtonsDiv.style.display = 'flex';
-            };
-
-            const submitEvent = (eventValue) => {
-                if (selectedEventInput) {
-                    const cleanEventValue = stripEmojis(eventValue);
-                    selectedEventInput.value = cleanEventValue;
+                    mainButtonsDiv.addEventListener('click', handleMainButtonClick);
                 }
-                form.submit();
-            };
-        });
-    </script>
+
+                if (subButtonsDiv) {
+                    const handleSubButtonClick = (event) => {
+                        const button = event.target.closest('button.custom-button');
+                        if (button) {
+                            const selectedSubEvent = button.dataset.subEvent;
+                            if (selectedSubEvent === "Other") {
+                                const customSubEvent = prompt("Enter your custom event:");
+                                if (customSubEvent) {
+                                    submitEvent(`${subButtonsDiv.dataset.parentEvent} - ${customSubEvent}`);
+                                }
+                            } else {
+                                submitEvent(`${subButtonsDiv.dataset.parentEvent} - ${selectedSubEvent}`);
+                            }
+                        }
+                    };
+
+                    subButtonsDiv.addEventListener('click', handleSubButtonClick);
+                }
+
+                if (backButton) {
+                    const hideSubOptions = () => {
+                        subButtonsDiv.style.display = 'none';
+                        backButton.style.display = 'none';
+                        mainButtonsDiv.style.display = 'flex';
+                        subButtonsDiv.dataset.parentEvent = '';
+                        subButtonsDiv.innerHTML = '';
+                    };
+
+                    backButton.addEventListener('click', hideSubOptions);
+                }
+
+                const displaySubOptions = (eventName) => {
+                    mainButtonsDiv.style.display = 'none';
+                    backButton.style.display = 'flex';
+                    subButtonsDiv.dataset.parentEvent = eventName;
+                    subButtonsDiv.innerHTML = eventSubOptions[eventName].map(subEvent => 
+                        `<button type="button" class="custom-button" data-sub-event="${subEvent}">
+                            ${subEvent === "Other" ? subEvent : subEvent}
+                        </button>`
+                    ).join('');
+                    subButtonsDiv.style.display = 'flex';
+                };
+
+                const submitEvent = (eventValue) => {
+                    if (selectedEventInput) {
+                        const cleanEventValue = stripEmojis(eventValue);
+                        selectedEventInput.value = cleanEventValue;
+                    }
+                    form.submit();
+                };
+            });
+        </script>
+      {% endif %}
     {% endblock %}
 </body>
 </html>
