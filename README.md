@@ -16,6 +16,10 @@ LifePulse is a simple life habit and health tracker application designed to help
 - Provide a smooth user experience across all kind of devices and screen sizes, especially **smartwatches**
 - Integrate with **Fitbit** to easily track health metrics such as sleep or activity
 
+<p align="center">
+  <img src="screenshots.png" alt="screenshots" width="70%">
+</p>
+
 ## 🚀 Getting Started
 
 LifePulse can easily be run locally using Docker.
