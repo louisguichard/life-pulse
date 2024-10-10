@@ -6,68 +6,106 @@ from datetime import datetime
 import io
 
 # Load Cloud Storage env variables
-load_dotenv()
+load_dotenv(".env")
 PROJECT_ID = os.getenv("PROJECT_ID")
 BUCKET_NAME = os.getenv("BUCKET_NAME")
-FILE_NAME = os.getenv("FILE_NAME")
+FILE_NAME = os.getenv("FILE_NAME", "data.csv")
 
-storage_client = storage.Client(project=PROJECT_ID)
+LOCAL_STORAGE = not all([PROJECT_ID, BUCKET_NAME])
+if not LOCAL_STORAGE:
+    storage_client = storage.Client(project=PROJECT_ID)
 
 
 def load_data():
-    bucket = storage_client.bucket(BUCKET_NAME)
-    blob = bucket.blob(FILE_NAME)
-    if not blob.exists():
-        return []
-    data = blob.download_as_text()
-    reader = csv.reader(io.StringIO(data))
-    return list(reader)
+    if LOCAL_STORAGE:
+        if not os.path.exists(FILE_NAME):
+            return []
+        with open(FILE_NAME, mode="r", newline="") as file:
+            reader = csv.reader(file)
+            return list(reader)
+    else:
+        bucket = storage_client.bucket(BUCKET_NAME)
+        blob = bucket.blob(FILE_NAME)
+        if not blob.exists():
+            return []
+        data = blob.download_as_text()
+        reader = csv.reader(io.StringIO(data))
+        return list(reader)
 
 
 def save_data(row):
     row = [str(item) for item in row]
-    bucket = storage_client.bucket(BUCKET_NAME)
-    blob = bucket.blob(FILE_NAME)
-    if not blob.exists():
-        rows = []
+    if LOCAL_STORAGE:
+        if not os.path.exists(FILE_NAME):
+            rows = []
+        else:
+            with open(FILE_NAME, mode="r", newline="") as file:
+                reader = csv.reader(file)
+                rows = list(reader)
+        rows.append(row)
+        rows.sort(key=lambda r: r[0])
+        with open(FILE_NAME, mode="w", newline="") as file:
+            writer = csv.writer(file, quoting=csv.QUOTE_MINIMAL)
+            writer.writerows(rows)
     else:
-        data = blob.download_as_text()
-        reader = csv.reader(io.StringIO(data))
-        rows = list(reader)
-    rows.append(row)
-    rows.sort(key=lambda r: r[0])
-    output = io.StringIO()
-    writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
-    writer.writerows(rows)
-    blob.upload_from_string(output.getvalue())
+        bucket = storage_client.bucket(BUCKET_NAME)
+        blob = bucket.blob(FILE_NAME)
+        if not blob.exists():
+            rows = []
+        else:
+            data = blob.download_as_text()
+            reader = csv.reader(io.StringIO(data))
+            rows = list(reader)
+        rows.append(row)
+        rows.sort(key=lambda r: r[0])
+        output = io.StringIO()
+        writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
+        writer.writerows(rows)
+        blob.upload_from_string(output.getvalue())
 
 
 def delete_data(target_row):
-    bucket = storage_client.bucket(BUCKET_NAME)
-    blob = bucket.blob(FILE_NAME)
-    if not blob.exists():
-        raise ValueError("Data file does not exist.")
-
-    data = blob.download_as_text()
-    reader = csv.reader(io.StringIO(data))
-    rows = list(reader)
-
-    # Attempt to find and remove the target row
-    row_found = False
-    for existing_row in rows:
-        if existing_row == target_row:
-            rows.remove(existing_row)
-            row_found = True
-            break
-
-    if not row_found:
-        raise ValueError("Record not found.")
-
-    # Write the updated rows back to the CSV
-    output = io.StringIO()
-    writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
-    writer.writerows(rows)
-    blob.upload_from_string(output.getvalue())
+    if LOCAL_STORAGE:
+        if not os.path.exists(FILE_NAME):
+            raise ValueError("Data file does not exist.")
+        with open(FILE_NAME, mode="r", newline="") as file:
+            reader = csv.reader(file)
+            rows = list(reader)
+        # Attempt to find and remove the target row
+        row_found = False
+        for existing_row in rows:
+            if existing_row == target_row:
+                rows.remove(existing_row)
+                row_found = True
+                break
+        if not row_found:
+            raise ValueError("Record not found.")
+        # Write the updated rows back to the CSV
+        with open(FILE_NAME, mode="w", newline="") as file:
+            writer = csv.writer(file, quoting=csv.QUOTE_MINIMAL)
+            writer.writerows(rows)
+    else:
+        bucket = storage_client.bucket(BUCKET_NAME)
+        blob = bucket.blob(FILE_NAME)
+        if not blob.exists():
+            raise ValueError("Data file does not exist.")
+        data = blob.download_as_text()
+        reader = csv.reader(io.StringIO(data))
+        rows = list(reader)
+        # Attempt to find and remove the target row
+        row_found = False
+        for existing_row in rows:
+            if existing_row == target_row:
+                rows.remove(existing_row)
+                row_found = True
+                break
+        if not row_found:
+            raise ValueError("Record not found.")
+        # Write the updated rows back to the CSV
+        output = io.StringIO()
+        writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
+        writer.writerows(rows)
+        blob.upload_from_string(output.getvalue())
 
 
 def get_latest_mood():
