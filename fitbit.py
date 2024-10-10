@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 from storage import load_data, save_data
 
 load_dotenv()
-SCHEME = "http" if os.getenv("APP_ENV") == "local" else "https"
+SCHEME = "http" if os.getenv("APP_ENV", "local") == "local" else "https"
 FITBIT_CLIENT_ID = os.getenv("FITBIT_CLIENT_ID")
 FITBIT_CLIENT_SECRET = os.getenv("FITBIT_CLIENT_SECRET")
 

@@ -15,13 +15,13 @@ from storage import (
 from fitbit import fitbit_login, fitbit_callback, get_fitbit_data, save_fitbit_data
 
 app = Flask(__name__)
-app.secret_key = os.getenv("APP_SECRET_KEY")
+app.secret_key = os.getenv("APP_SECRET_KEY", "secret_key")
 
 # Timezone for Paris
 paris_tz = pytz.timezone("Europe/Paris")
 
 # Load config
-config_path = os.getenv("CONFIG_PATH", "config_example.json")
+config_path = os.getenv("CONFIG_PATH", "config.json")
 with open(config_path, "r") as file:
     config = json.load(file)
 
@@ -100,6 +100,9 @@ def health():
 
 @app.route("/dashboard")
 def dashboard():
+    if not all([os.getenv("FITBIT_CLIENT_ID"), os.getenv("FITBIT_CLIENT_SECRET")]):
+        flash("Fitbit is not configured.", "error")
+        return redirect(url_for("home"))
     now = datetime.now(paris_tz)
     if ("last_fitbit_check" not in session) or (
         now - session["last_fitbit_check"] >= timedelta(days=1)
@@ -140,12 +143,16 @@ def delete_record():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    password = os.getenv("PASSWORD")
+    if not password:
+        session["logged_in"] = True
+        return redirect(url_for("history"))
     last_attempt = get_last_failed_attempt()
     if last_attempt and datetime.now() < last_attempt + timedelta(hours=24):
         flash("Try again later.", "error")
         return render_template("home.html")
     if request.method == "POST":
-        if request.form["password"] == os.getenv("PASSWORD"):
+        if request.form["password"] == password:
             session["logged_in"] = True
             return redirect(url_for("history"))
         else:

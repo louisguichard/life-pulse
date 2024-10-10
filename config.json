@@ -7,11 +7,7 @@
             "Jacques",
             "Other"
         ],
-        "Family 👪": [
-            "Papa",
-            "Maman",
-            "Other"
-        ],
+        "Family 👪": [],
         "Sport 🏃": [
             "Running",
             "Swimming",
@@ -25,7 +21,6 @@
     "health": {
         "Headache 🤕": [],
         "Stomachache 🤢": [],
-        "Earache 👂": [],
         "Insomnia 😴": []
     }
 }
