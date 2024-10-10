@@ -12,11 +12,7 @@ from storage import (
     log_failed_attempt,
     get_last_failed_attempt,
 )
-from fitbit import (
-    fitbit_login,
-    fitbit_callback,
-    get_fitbit_data,
-)
+from fitbit import fitbit_login, fitbit_callback, get_fitbit_data, save_fitbit_data
 
 app = Flask(__name__)
 app.secret_key = os.getenv("APP_SECRET_KEY")
@@ -28,13 +24,6 @@ paris_tz = pytz.timezone("Europe/Paris")
 config_path = os.getenv("CONFIG_PATH", "config_example.json")
 with open(config_path, "r") as file:
     config = json.load(file)
-
-
-def round_to_hour(dt):
-    "Rounds datetime to hour."
-    if dt.minute >= 30:
-        dt += timedelta(hours=1)
-    return dt.replace(minute=0, second=0, microsecond=0)
 
 
 @app.route("/")
@@ -109,18 +98,13 @@ def health():
         )
 
 
-# Fitbit routes
-app.add_url_rule("/fitbit_login", "fitbit_login", fitbit_login)
-app.add_url_rule("/fitbit_callback", "fitbit_callback", fitbit_callback)
-
-
 @app.route("/dashboard")
 def dashboard():
     now = datetime.now(paris_tz)
     if ("last_fitbit_check" not in session) or (
         now - session["last_fitbit_check"] >= timedelta(days=1)
     ):
-        save_fitbit_data()
+        save_fitbit_data(timezone=paris_tz)
         session["last_fitbit_check"] = now
     try:
         steps, sleep = get_fitbit_data(now.strftime("%Y-%m-%d"))
@@ -177,30 +161,9 @@ def logout():
     return redirect(url_for("home"))
 
 
-def save_fitbit_data():
-    "Saves Fitbit data for the past 7 days if not already saved"
-
-    # Load existing data
-    data = load_data()
-
-    # Days to check
-    date = datetime.now(paris_tz) - timedelta(hours=6)
-    dates_to_check = [
-        (date - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(1, 8)
-    ]
-
-    # Check and retrieve missing data
-    for past_date in dates_to_check:
-        existing_data = [entry for entry in data if entry[0][:10] == past_date]
-        existing_types = [entry[1] for entry in existing_data]
-        fitbit_types = ["Sleep", "Steps"]
-        if any([data_type not in existing_types for data_type in fitbit_types]):
-            steps, sleep = get_fitbit_data(past_date)
-            if "Sleep" not in existing_types:
-                save_data([f"{past_date}T00:00", "Sleep", sleep, ""])
-            if "Steps" not in existing_types:
-                save_data([f"{past_date}T00:00", "Steps", steps, ""])
-
+# Fitbit routes
+app.add_url_rule("/fitbit_login", "fitbit_login", fitbit_login)
+app.add_url_rule("/fitbit_callback", "fitbit_callback", fitbit_callback)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

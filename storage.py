@@ -1,23 +1,20 @@
+import os
+from dotenv import load_dotenv
 import csv
 from google.cloud import storage
 from datetime import datetime
 import io
 
-
-PROJECT_ID = "louisguichard"
-BUCKET_NAME = "life_pulse"
-FILE_NAME = "data.csv"
+# Load Cloud Storage env variables
+load_dotenv()
+PROJECT_ID = os.getenv("PROJECT_ID")
+BUCKET_NAME = os.getenv("BUCKET_NAME")
+FILE_NAME = os.getenv("FILE_NAME")
 
 storage_client = storage.Client(project=PROJECT_ID)
 
 
 def load_data():
-    """
-    Loads data from the CSV file.
-
-    Returns:
-        list: A list of rows, where each row is a list of fields.
-    """
     bucket = storage_client.bucket(BUCKET_NAME)
     blob = bucket.blob(FILE_NAME)
     if not blob.exists():
@@ -28,12 +25,6 @@ def load_data():
 
 
 def save_data(row):
-    """
-    Adds a row to the CSV file.
-
-    Args:
-        row (list): The row to save, e.g., [date_time, type, value, comment].
-    """
     row = [str(item) for item in row]
     bucket = storage_client.bucket(BUCKET_NAME)
     blob = bucket.blob(FILE_NAME)
@@ -52,15 +43,6 @@ def save_data(row):
 
 
 def delete_data(target_row):
-    """
-    Deletes a specific row from the CSV file.
-
-    Args:
-        target_row (list): The row to delete, e.g., [date_time, type, value, comment].
-
-    Raises:
-        ValueError: If the row is not found.
-    """
     bucket = storage_client.bucket(BUCKET_NAME)
     blob = bucket.blob(FILE_NAME)
     if not blob.exists():
@@ -81,9 +63,6 @@ def delete_data(target_row):
     if not row_found:
         raise ValueError("Record not found.")
 
-    # Sort the remaining rows by date_time
-    rows.sort(key=lambda r: r[0])
-
     # Write the updated rows back to the CSV
     output = io.StringIO()
     writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
@@ -92,12 +71,6 @@ def delete_data(target_row):
 
 
 def get_latest_mood():
-    """
-    Retrieves the most recent Mood entry from the data.
-
-    Returns:
-        dict or None: A dictionary with 'date_time', 'value', and 'comment' if found, else None.
-    """
     data = load_data()
     mood_entries = [row for row in data if row[1] == "Mood"]
     if not mood_entries:
@@ -110,9 +83,6 @@ def get_latest_mood():
 
 
 def log_failed_attempt():
-    """
-    Logs the current timestamp as a failed login attempt.
-    """
     bucket = storage_client.bucket(BUCKET_NAME)
     blob = bucket.blob("last_failed_attempt.txt")
     current_time = datetime.now().isoformat()
@@ -120,12 +90,6 @@ def log_failed_attempt():
 
 
 def get_last_failed_attempt():
-    """
-    Retrieves the timestamp of the last failed login attempt.
-
-    Returns:
-        datetime or None: The datetime of the last failed attempt, or None if not found.
-    """
     bucket = storage_client.bucket(BUCKET_NAME)
     blob = bucket.blob("last_failed_attempt.txt")
     if not blob.exists():

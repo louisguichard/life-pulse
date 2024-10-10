@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 from flask import request, session, redirect, url_for
 from urllib.parse import urlencode
 
+from storage import load_data, save_data
+
 load_dotenv()
 SCHEME = "http" if os.getenv("APP_ENV") == "local" else "https"
 FITBIT_CLIENT_ID = os.getenv("FITBIT_CLIENT_ID")
@@ -126,3 +128,28 @@ def get_fitbit_data(date):
     sleep_hours = total_minutes_asleep / 60
 
     return steps, sleep_hours
+
+
+def save_fitbit_data(timezone):
+    "Saves Fitbit data for the past 7 days if not already saved"
+
+    # Load existing data
+    data = load_data()
+
+    # Days to check
+    date = datetime.now(timezone) - timedelta(hours=6)
+    dates_to_check = [
+        (date - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(1, 8)
+    ]
+
+    # Check and retrieve missing data
+    for past_date in dates_to_check:
+        existing_data = [entry for entry in data if entry[0][:10] == past_date]
+        existing_types = [entry[1] for entry in existing_data]
+        fitbit_types = ["Sleep", "Steps"]
+        if any([data_type not in existing_types for data_type in fitbit_types]):
+            steps, sleep = get_fitbit_data(past_date)
+            if "Sleep" not in existing_types:
+                save_data([f"{past_date}T00:00", "Sleep", sleep, ""])
+            if "Steps" not in existing_types:
+                save_data([f"{past_date}T00:00", "Steps", steps, ""])

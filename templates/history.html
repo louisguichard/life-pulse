@@ -47,7 +47,6 @@
                 font-size: 12px;
             }
         }
-        /* Styles for the delete button */
         .delete-button {
             background-color: transparent;
             border: none;
@@ -58,13 +57,12 @@
         .delete-button:hover {
             color: darkred;
         }
-        /* Styles for flash messages */
         .flash-message {
             margin-bottom: 20px;
             padding: 10px;
             border: 1px solid #ddd;
             background-color: #f9f9f9;
-            max-width: 800px; /* Match table width */
+            max-width: 800px; 
             width: 100%;
             text-align: center;
         }
@@ -76,7 +74,6 @@
             border-color: #f44336;
             color: #f44336;
         }
-        /* Styles for buttons */
         .button-container {
             display: flex;
             justify-content: center;
@@ -99,7 +96,6 @@
         .button-container a:hover {
             background-color: #45a049;
         }
-        /* Styles for comment toggle */
         .comment-full {
             display: none;
         }
@@ -129,7 +125,7 @@
             <th>Date</th>
             <th>Type</th>
             <th>Value</th>
-            <th>Comment</th> <!-- New Comment Column -->
+            <th>Comment</th>
             <th>Delete</th>
         </tr>
         {% for row in data %}
@@ -157,13 +153,11 @@
         {% endfor %}
     </table>
 
-    <!-- Button container for Return to Home and Logout buttons -->
     <div class="button-container">
         <a href="{{ url_for('home') }}">Return to Home</a>
         <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
     </div>
 
-    <!-- JavaScript for toggling comments -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const commentCells = document.querySelectorAll('.comment-cell');
