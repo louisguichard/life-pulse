@@ -25,7 +25,8 @@ app.secret_key = os.getenv("APP_SECRET_KEY")
 paris_tz = pytz.timezone("Europe/Paris")
 
 # Load config
-with open("config.json", "r") as file:
+config_path = os.getenv("CONFIG_PATH", "config_example.json")
+with open(config_path, "r") as file:
     config = json.load(file)
 
 
