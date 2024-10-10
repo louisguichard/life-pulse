@@ -37,7 +37,7 @@ LifePulse can easily be run locally using Docker.
 
 💡 Optionally, you can update the `config.json` file to use your own events! 
 
-Additionally, if you want to use Cloud Storage to save your data or integrate with Fitbit, update the `.env` file. Note that Fitbit integration will require you to [create your own Fitbit application](https://dev.fitbit.com/apps/new) to obtain the client ID and secret.
+Additionally, if you want to use Cloud Storage to save your data or integrate with Fitbit, create a `.env` file based on the `.env.example` one. Note that Fitbit integration will require you to [create your own Fitbit application](https://dev.fitbit.com/apps/new) to obtain the client ID and secret.
 
 
 ## ☁️ How I Use LifePulse

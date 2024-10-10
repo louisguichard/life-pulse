@@ -6,7 +6,7 @@ from datetime import datetime
 import io
 
 # Load Cloud Storage env variables
-load_dotenv(".env")
+load_dotenv()
 PROJECT_ID = os.getenv("PROJECT_ID")
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 FILE_NAME = os.getenv("FILE_NAME", "data.csv")
