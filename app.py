@@ -1,10 +1,10 @@
 import os
-import json
 from flask import Flask, session, render_template, request, redirect, url_for, flash
 from datetime import datetime, timedelta
 import pytz
 
 from storage import (
+    load_config,
     load_data,
     save_data,
     delete_data,
@@ -22,8 +22,7 @@ paris_tz = pytz.timezone("Europe/Paris")
 
 # Load config
 config_path = os.getenv("CONFIG_PATH", "config.json")
-with open(config_path, "r") as file:
-    config = json.load(file)
+config = load_config(config_path)
 
 
 @app.route("/")

@@ -4,6 +4,7 @@ import csv
 from google.cloud import storage
 from datetime import datetime
 import io
+import json
 
 # Load Cloud Storage env variables
 load_dotenv()
@@ -14,6 +15,20 @@ FILE_NAME = os.getenv("FILE_NAME", "data.csv")
 LOCAL_STORAGE = not all([PROJECT_ID, BUCKET_NAME])
 if not LOCAL_STORAGE:
     storage_client = storage.Client(project=PROJECT_ID)
+
+
+def load_config(config_path):
+    if config_path.startswith("gs://"):
+        bucket_name, blob_name = config_path.split("/")[-2], config_path.split("/")[-1]
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(blob_name)
+        if not blob.exists():
+            return {}
+        data = blob.download_as_text()
+        return json.loads(data)
+    else:
+        with open(config_path, mode="r", newline="") as file:
+            return json.load(file)
 
 
 def load_data():
