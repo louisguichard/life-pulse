@@ -41,7 +41,11 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        transition: transform 0.2s;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .mood-button.selected {
+        transform: scale(1.1);
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
     .mood-buttons input[type="radio"]:checked + label {
         transform: scale(1.1);
@@ -77,21 +81,138 @@
             display: none;
         }
     }
+
+    /* Modifier buttons styles */
+    .modifier-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    .modifier-button {
+        width: 50px;
+        height: 50px;
+        border: none;
+        background-color: #d3d3d3; /* Light grey */
+        color: #333;
+        font-size: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: transform 0.2s, background-color 0.2s;
+        display: flex; /* Added */
+        justify-content: center; /* Added */
+        align-items: center; /* Added */
+    }
+    .modifier-button:hover {
+        background-color: #a9a9a9; /* Darker grey on hover */
+    }
+    .modifier-button.active {
+        background-color: #a9a9a9; /* Darker grey when active */
+        transform: scale(1.1);
+    }
 {% endblock %}
 
 {% block form_content %}
-    <div class="mood-buttons">
-        {% for i in range(1, 11) %}
-            <input type="radio" id="mood{{ i }}" name="mood" value="{{ i }}" required>
-            <label for="mood{{ i }}" class="mood-button mood-{{ i }}">
-                {{ i }}
-            </label>
-        {% endfor %}
-    </div>
-    
-    <div class="comment-section">
-        <textarea name="comment" placeholder="Add a comment (optional)" value="{{ comment }}"></textarea>
-    </div>
-    
-    <button type="submit">Validate</button>
+    <form method="POST" action="{{ url_for('mood') }}">
+        <div class="mood-buttons">
+            {% for i in range(1, 11) %}
+                <input type="radio" id="mood{{ i }}" name="mood" value="{{ i }}">
+                <label for="mood{{ i }}" class="mood-button mood-{{ i }}">
+                    {{ i }}
+                </label>
+            {% endfor %}
+        </div>
+        
+        <div class="modifier-buttons">
+            <button type="button" class="modifier-button" id="modifier-minus">-</button>
+            <button type="button" class="modifier-button" id="modifier-plus">+</button>
+        </div>
+
+        <!-- Hidden input to store the modifier -->
+        <input type="hidden" name="mood_modifier" id="mood_modifier" value="">
+
+        <div class="comment-section">
+            <textarea name="comment" placeholder="Add a comment (optional)" value="{{ comment }}"></textarea>
+        </div>
+        
+        <button type="submit">Validate</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const moodButtons = document.querySelectorAll('.mood-button');
+            let selectedMood = null;
+
+            moodButtons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault(); // Prevent default radio button behavior
+                    
+                    if (selectedMood === this) {
+                        // Deselect if clicking the same button
+                        this.classList.remove('selected');
+                        this.previousElementSibling.checked = false;
+                        selectedMood = null;
+                    } else {
+                        // Deselect previous selection
+                        if (selectedMood) {
+                            selectedMood.classList.remove('selected');
+                            selectedMood.previousElementSibling.checked = false;
+                        }
+                        
+                        // Select new button
+                        this.classList.add('selected');
+                        this.previousElementSibling.checked = true;
+                        selectedMood = this;
+                    }
+                });
+            });
+
+            const modifierMinus = document.getElementById('modifier-minus');
+            const modifierPlus = document.getElementById('modifier-plus');
+            const moodModifierInput = document.getElementById('mood_modifier');
+            const modifierButtons = document.querySelectorAll('.modifier-button');
+
+            let currentModifier = '';
+
+            function updateModifier(modifier) {
+                if (currentModifier === modifier) {
+                    currentModifier = '';
+                } else {
+                    currentModifier = modifier;
+                }
+                moodModifierInput.value = currentModifier;
+                
+                modifierButtons.forEach(button => {
+                    button.classList.remove('active');
+                });
+                if (currentModifier) {
+                    if (currentModifier === '+') {
+                        modifierPlus.classList.add('active');
+                    } else if (currentModifier === '-') {
+                        modifierMinus.classList.add('active');
+                    }
+                }
+            }
+
+            modifierMinus.addEventListener('click', function() {
+                updateModifier('-');
+            });
+
+            modifierPlus.addEventListener('click', function() {
+                updateModifier('+');
+            });
+            
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(event) {
+                if (!selectedMood) {
+                    event.preventDefault(); // Prevent form submission if no mood is selected
+                    alert('Please select a mood before submitting.');
+                } else {
+                    const moodValue = selectedMood.previousElementSibling.value;
+                    if (currentModifier) {
+                        selectedMood.previousElementSibling.value = moodValue + currentModifier;
+                    }
+                }
+            });
+        });
+    </script>
 {% endblock %}
