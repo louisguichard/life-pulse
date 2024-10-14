@@ -74,6 +74,18 @@
         .custom-button:hover {
             background-color: #1976D2;
         }
+        .custom-button.selected-sub-event {
+            transition: transform 0.2s, box-shadow 0.2s;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            background-color: #1976D2;
+        }
+        #validate-button {
+            background-color: #4CAF50;
+        }
+        #validate-button:hover {
+            background-color: #45a049;
+        }
         {% block additional_styles %}{% endblock %}
     </style>
 </head>
@@ -100,7 +112,7 @@
 
                 const mainButtonsDiv = document.querySelectorAll('#main-buttons, .button-grid')[0];
                 const subButtonsDiv = document.getElementById('sub-buttons');
-                const backButton = document.getElementById('back-button');
+                const validateButton = document.getElementById('validate-button');
                 const selectedEventInput = document.getElementById('selected-event');
                 const form = mainButtonsDiv.closest('form');
 
@@ -135,7 +147,7 @@
                                     submitEvent(`${subButtonsDiv.dataset.parentEvent} - ${customSubEvent}`);
                                 }
                             } else {
-                                submitEvent(`${subButtonsDiv.dataset.parentEvent} - ${selectedSubEvent}`);
+                                button.classList.toggle('selected-sub-event');
                             }
                         }
                     };
@@ -143,21 +155,22 @@
                     subButtonsDiv.addEventListener('click', handleSubButtonClick);
                 }
 
-                if (backButton) {
-                    const hideSubOptions = () => {
-                        subButtonsDiv.style.display = 'none';
-                        backButton.style.display = 'none';
-                        mainButtonsDiv.style.display = 'flex';
-                        subButtonsDiv.dataset.parentEvent = '';
-                        subButtonsDiv.innerHTML = '';
-                    };
-
-                    backButton.addEventListener('click', hideSubOptions);
+                if (validateButton) {
+                    validateButton.addEventListener('click', () => {
+                        const parentEvent = subButtonsDiv.dataset.parentEvent;
+                        const selectedSubEvents = subButtonsDiv.querySelectorAll('.selected-sub-event');
+                        if (selectedSubEvents.length > 0) {
+                            const subEventValues = Array.from(selectedSubEvents).map(btn => btn.dataset.subEvent);
+                            submitEvent(`${parentEvent} - ${subEventValues.join(', ')}`);
+                        } else {
+                            alert('Please select at least one sub-event.');
+                        }
+                    });
                 }
 
                 const displaySubOptions = (eventName) => {
                     mainButtonsDiv.style.display = 'none';
-                    backButton.style.display = 'flex';
+                    validateButton.style.display = 'flex';
                     subButtonsDiv.dataset.parentEvent = eventName;
                     subButtonsDiv.innerHTML = eventSubOptions[eventName].map(subEvent => 
                         `<button type="button" class="custom-button" data-sub-event="${subEvent}">
