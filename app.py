@@ -120,8 +120,12 @@ def dashboard():
 def history():
     if not session.get("logged_in"):
         return redirect(url_for("login"))
-    data = load_data()
-    recent_data = data[::-1][:20]
+    data = load_data()[::-1]
+    show_all = request.args.get("show_all") == "true"
+    if show_all:
+        recent_data = data
+    else:
+        recent_data = data[:20]
     return render_template("history.html", data=recent_data)
 
 

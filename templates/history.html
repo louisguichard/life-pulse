@@ -78,6 +78,7 @@
             display: flex;
             justify-content: center;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         .button-container a {
             text-decoration: none;
@@ -119,7 +120,7 @@
       {% endif %}
     {% endwith %}
     
-    <h2>History (Last 20 Records)</h2>
+    <h2>History{% if request.args.get('show_all') %} (All Records){% else %} (Last 20 Records){% endif %}</h2>
     <table>
         <tr>
             <th>Date</th>
@@ -152,6 +153,14 @@
         </tr>
         {% endfor %}
     </table>
+
+    <div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
+        {% if not request.args.get('show_all') %}
+            <a href="{{ url_for('history', show_all='true') }}" style="font-size: 14px; color: #4d4d4d; text-decoration: underline;">Show all records</a>
+        {% else %}
+            <a href="{{ url_for('history') }}" style="font-size: 14px; color: #4d4d4d; text-decoration: underline;">Show last 20 records</a>
+        {% endif %}
+    </div>
 
     <div class="button-container">
         <a href="{{ url_for('home') }}">Return to Home</a>
