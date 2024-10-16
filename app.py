@@ -103,15 +103,14 @@ def dashboard():
         flash("Fitbit is not configured.", "error")
         return redirect(url_for("home"))
     now = datetime.now(paris_tz)
-    if ("last_fitbit_check" not in session) or (
-        now - session["last_fitbit_check"] >= timedelta(days=1)
-    ):
-        save_fitbit_data(timezone=paris_tz)
-        session["last_fitbit_check"] = now
     try:
+        if ("last_fitbit_check" not in session) or (
+            now - session["last_fitbit_check"] >= timedelta(days=1)
+        ):
+            save_fitbit_data(timezone=paris_tz)
+            session["last_fitbit_check"] = now
         steps, sleep = get_fitbit_data(now.strftime("%Y-%m-%d"))
     except ValueError:
-        flash("Failed to retrieve Fitbit data.", "error")
         return render_template("dashboard.html", fitbit_required=True)
     return render_template("dashboard.html", steps=steps, sleep=sleep)
 
