@@ -5,6 +5,14 @@
 {% block header %}Record Mood{% endblock %}
 
 {% block additional_styles %}
+    body {
+        overflow-y: auto !important;
+    }
+    
+    form {
+        max-width: 100%;
+    }
+
     textarea, button {
         width: 100%;
         max-width: 300px;
@@ -51,17 +59,25 @@
         transform: scale(1.1);
         box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
-    /* Mood colors */
-    .mood-1 { background-color: #ab0101; }
-    .mood-2 { background-color: #d00f0f; }
-    .mood-3 { background-color: #eb3030; }
-    .mood-4 { background-color: #ee4e49; }
-    .mood-5 { background-color: #dcbb00; }
-    .mood-6 { background-color: #8bde8b; }
-    .mood-7 { background-color: #50df50; }
-    .mood-8 { background-color: #0fbf0f; }
-    .mood-9 { background-color: #05a405; }
-    .mood-10 { background-color: #007900; }
+
+    /* Dynamic mood colors - we'll apply these via JavaScript */
+    {% set colors = [
+        "#ab0101", "#d00f0f", "#eb3030", "#ee4e49", "#dcbb00",
+        "#8bde8b", "#50df50", "#0fbf0f", "#05a405", "#007900"
+    ] %}
+
+    {% for mood_key, mood_description in moods.items() %}
+        {% set index = loop.index0 %}
+        {% set color_index = index %}
+        {% if moods|length <= 5 %}
+            {% set color_index = index * 2 %}
+        {% endif %}
+        .mood-{{ loop.index }} { 
+            background-color: {{ colors[color_index] }}; 
+            font-size: {{ "18px" if mood_key|length <= 2 else "16px" }};
+        }
+    {% endfor %}
+
     /* Submit button */
     button {
         background-color: #517cff;
@@ -78,6 +94,9 @@
     /* New media query for small screens */
     @media (max-height: 500px) {
         .comment-section {
+            display: none;
+        }
+        .mood-descriptions {
             display: none;
         }
     }
@@ -109,15 +128,79 @@
         background-color: #a9a9a9; /* Darker grey when active */
         transform: scale(1.1);
     }
+
+    /* Mood descriptions */
+    .mood-descriptions {
+        width: 90%;
+        margin: 20px auto;
+        text-align: left;
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: none;
+        position: relative;
+        z-index: 10;
+        overflow-y: auto;
+        max-height: 60vh;
+    }
+    .mood-description {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    .mood-description:last-child {
+        border-bottom: none;
+    }
+    .mood-description-key {
+        font-weight: bold;
+        margin-right: 5px;
+    }
+    .toggle-descriptions {
+        text-decoration: underline;
+        background: none;
+        border: none;
+        color: #333;
+        cursor: pointer;
+        padding: 5px;
+        margin: 10px auto;
+        display: block;
+        width: auto;
+        font-size: 14px;
+    }
+
+    /* Mood descriptions container outside the form */
+    #mood-descriptions-container {
+        width: 95%;
+        max-width: 1200px;
+        margin: 20px auto;
+        position: relative;
+        overflow: visible;
+    }
+    
+    .mood-descriptions {
+        width: 100%;
+        margin: 0 auto;
+        text-align: left;
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: none;
+        overflow-y: auto;
+        position: absolute;
+        max-height: 500px;
+        z-index: 100;
+    }
 {% endblock %}
 
 {% block form_content %}
     <form method="POST" action="{{ url_for('mood') }}">
         <div class="mood-buttons">
-            {% for i in range(1, 11) %}
-                <input type="radio" id="mood{{ i }}" name="mood" value="{{ i }}">
-                <label for="mood{{ i }}" class="mood-button mood-{{ i }}">
-                    {{ i }}
+            {% for mood_key, mood_description in moods.items() %}
+                <input type="radio" id="mood{{ loop.index }}" name="mood" value="{{ mood_key }}">
+                <label for="mood{{ loop.index }}" class="mood-button mood-{{ loop.index }}">
+                    {{ mood_key }}
                 </label>
             {% endfor %}
         </div>
@@ -134,11 +217,49 @@
             <textarea name="comment" placeholder="Add a comment (optional)" value="{{ comment }}"></textarea>
         </div>
         
+        <div class="toggle-descriptions-container">
+            <button type="button" class="toggle-descriptions" id="toggle-descriptions">Show scale definition</button>
+        </div>
+
         <button type="submit">Validate</button>
     </form>
 
+    <!-- Move mood descriptions outside the form -->
+    <div id="mood-descriptions-container">
+        <div class="mood-descriptions" id="mood-descriptions">
+            {% for mood_key, mood_description in moods.items() %}
+                {% if mood_description and mood_description != "" %}
+                    <div class="mood-description">
+                        <span class="mood-description-key">{{ mood_key }}:</span>
+                        <span>{{ mood_description }}</span>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Toggle mood descriptions
+            const toggleDescriptionsBtn = document.getElementById('toggle-descriptions');
+            const moodDescriptions = document.getElementById('mood-descriptions');
+            
+            if (toggleDescriptionsBtn && moodDescriptions) {
+                toggleDescriptionsBtn.addEventListener('click', function() {
+                    if (moodDescriptions.style.display === 'block') {
+                        moodDescriptions.style.display = 'none';
+                        toggleDescriptionsBtn.textContent = 'Show scale definition';
+                        // Ensure the page is scrollable
+                        document.body.style.overflow = 'auto';
+                    } else {
+                        moodDescriptions.style.display = 'block';
+                        toggleDescriptionsBtn.textContent = 'Hide scale definition';
+                        // Ensure the page is scrollable
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            }
+            
             const moodButtons = document.querySelectorAll('.mood-button');
             let selectedMood = null;
 

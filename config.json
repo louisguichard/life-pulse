@@ -20,5 +20,12 @@
         "Headache 🤕": [],
         "Stomachache 🤢": [],
         "Insomnia 😴": []
+    },
+    "moods": {
+        "😭": "Very Sad",
+        "😔": "Sad",
+        "😐": "Neutral",
+        "🙂": "Happy",
+        "😁": "Very Happy"
     }
 }

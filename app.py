@@ -49,8 +49,12 @@ def mood():
         now = datetime.now(paris_tz)
         current_date = now.strftime("%Y-%m-%d")
         current_hour = now.hour
+        mood_config = config.get("moods", {})
         return render_template(
-            "mood.html", current_date=current_date, current_hour=current_hour
+            "mood.html",
+            current_date=current_date,
+            current_hour=current_hour,
+            moods=mood_config,
         )
 
 
