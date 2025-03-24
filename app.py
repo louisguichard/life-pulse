@@ -2,6 +2,7 @@ import os
 from flask import Flask, session, render_template, request, redirect, url_for, flash
 from datetime import datetime, timedelta
 import pytz
+import time
 
 from storage import (
     load_config,
@@ -28,7 +29,9 @@ config = load_config(config_path)
 @app.route("/")
 def home():
     current_mood = get_latest_mood()
-    return render_template("home.html", current_mood=current_mood)
+    return render_template(
+        "home.html", current_mood=current_mood, enable_feedback=app.debug
+    )
 
 
 @app.route("/mood", methods=["GET", "POST"])
@@ -174,5 +177,25 @@ def logout():
 app.add_url_rule("/fitbit_login", "fitbit_login", fitbit_login)
 app.add_url_rule("/fitbit_callback", "fitbit_callback", fitbit_callback)
 
+
+@app.route("/feedback", methods=["POST"])
+def feedback():
+    feedback_type = request.json.get("type")
+    message = request.json.get("message", "")
+
+    if feedback_type == "good":
+        print("\n--- SUCCESS: User feedback is good! ---\n")
+        time.sleep(0.5)  # Brief delay to ensure response is sent
+        os._exit(0)
+    elif feedback_type == "issue":
+        print(f"\n--- ERROR: User reported an issue: {message} ---\n")
+        time.sleep(0.5)  # Brief delay to ensure response is sent
+        os._exit(1)
+
+    return {"status": "error", "message": "Invalid feedback type"}
+
+
 if __name__ == "__main__":
+    # Set debug mode based on APP_ENV
+    app.debug = os.getenv("APP_ENV", "local").lower() == "local"
     app.run(host="0.0.0.0", port=8080)
