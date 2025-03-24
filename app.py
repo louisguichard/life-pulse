@@ -1,8 +1,18 @@
 import os
-from flask import Flask, session, render_template, request, redirect, url_for, flash
+from flask import (
+    Flask,
+    session,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash,
+    make_response,
+)
 from datetime import datetime, timedelta
 import pytz
 import time
+import functools
 
 from storage import (
     load_config,
@@ -26,7 +36,21 @@ config_path = os.getenv("CONFIG_PATH", "config.json")
 config = load_config(config_path)
 
 
+# Login verification decorator
+def login_required(f):
+    @functools.wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_cookie = request.cookies.get("auth_token")
+        password = os.getenv("PASSWORD")
+        if auth_cookie and auth_cookie == password:
+            return f(*args, **kwargs)
+        return redirect(url_for("login", next=request.url))
+
+    return decorated_function
+
+
 @app.route("/")
+@login_required
 def home():
     current_mood = get_latest_mood()
     return render_template(
@@ -35,6 +59,7 @@ def home():
 
 
 @app.route("/mood", methods=["GET", "POST"])
+@login_required
 def mood():
     if request.method == "POST":
         date = request.form["date"]
@@ -59,6 +84,7 @@ def mood():
 
 
 @app.route("/events", methods=["GET", "POST"])
+@login_required
 def events():
     if request.method == "POST":
         date = request.form["date"]
@@ -82,6 +108,7 @@ def events():
 
 
 @app.route("/health", methods=["GET", "POST"])
+@login_required
 def health():
     if request.method == "POST":
         date = request.form["date"]
@@ -105,6 +132,7 @@ def health():
 
 
 @app.route("/dashboard")
+@login_required
 def dashboard():
     if not all([os.getenv("FITBIT_CLIENT_ID"), os.getenv("FITBIT_CLIENT_SECRET")]):
         flash("Fitbit is not configured.", "error")
@@ -123,9 +151,8 @@ def dashboard():
 
 
 @app.route("/history")
+@login_required
 def history():
-    if not session.get("logged_in"):
-        return redirect(url_for("login"))
     data = load_data()[::-1]
     show_all = request.args.get("show_all") == "true"
     if show_all:
@@ -136,6 +163,7 @@ def history():
 
 
 @app.route("/delete", methods=["POST"])
+@login_required
 def delete_record():
     date = request.form.get("date")
     record_type = request.form.get("type")
@@ -154,27 +182,40 @@ def delete_record():
 def login():
     password = os.getenv("PASSWORD")
     if not password:
-        session["logged_in"] = True
-        return redirect(url_for("history"))
+        return redirect(url_for("home"))
     last_attempt = get_last_failed_attempt()
     if last_attempt and datetime.now() < last_attempt + timedelta(hours=24):
         flash("Try again later.", "error")
         return render_template("home.html")
     if request.method == "POST":
         if request.form["password"] == password:
-            session["logged_in"] = True
-            return redirect(url_for("history"))
+            next_page = request.args.get("next", url_for("history"))
+            response = make_response(redirect(next_page))
+            expires = datetime.now() + timedelta(days=365 * 2)  # 2 years expiration
+            response.set_cookie(
+                "auth_token",
+                password,
+                expires=expires,
+                httponly=True,
+                secure=not app.debug,
+                samesite="Lax",
+            )
+
+            return response
         else:
             log_failed_attempt()
             flash("Invalid password", "error")
             return render_template("home.html")
+
     return render_template("login.html")
 
 
 @app.route("/logout")
 def logout():
     session.pop("logged_in", None)
-    return redirect(url_for("home"))
+    response = make_response(redirect(url_for("home")))
+    response.delete_cookie("auth_token")
+    return response
 
 
 # Fitbit routes
