@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 import pytz
 import time
 import functools
-
+from dotenv import load_dotenv
 from storage import (
     load_config,
     load_data,
@@ -25,6 +25,7 @@ from storage import (
 )
 from fitbit import fitbit_login, fitbit_callback, get_fitbit_data, save_fitbit_data
 
+load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("APP_SECRET_KEY", "secret_key")
 
@@ -186,7 +187,6 @@ def login():
     last_attempt = get_last_failed_attempt()
     if last_attempt and datetime.now() < last_attempt + timedelta(hours=24):
         flash("Try again later.", "error")
-        return render_template("home.html")
     if request.method == "POST":
         if request.form["password"] == password:
             next_page = request.args.get("next", url_for("history"))
@@ -205,7 +205,6 @@ def login():
         else:
             log_failed_attempt()
             flash("Invalid password", "error")
-            return render_template("home.html")
 
     return render_template("login.html")
 

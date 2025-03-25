@@ -1,5 +1,4 @@
 import os
-from dotenv import load_dotenv
 import csv
 from google.cloud import storage
 from datetime import datetime
@@ -7,7 +6,6 @@ import io
 import json
 
 # Load Cloud Storage env variables
-load_dotenv()
 PROJECT_ID = os.getenv("PROJECT_ID")
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 FILE_NAME = os.getenv("FILE_NAME", "data.csv")
