@@ -134,16 +134,28 @@ def get_latest_mood():
 
 
 def log_failed_attempt():
-    bucket = storage_client.bucket(BUCKET_NAME)
-    blob = bucket.blob("last_failed_attempt.txt")
-    current_time = datetime.now().isoformat()
-    blob.upload_from_string(current_time)
+    if LOCAL_STORAGE:
+        with open("last_failed_attempt.txt", "w") as file:
+            current_time = datetime.now().isoformat()
+            file.write(current_time)
+    else:
+        bucket = storage_client.bucket(BUCKET_NAME)
+        blob = bucket.blob("last_failed_attempt.txt")
+        current_time = datetime.now().isoformat()
+        blob.upload_from_string(current_time)
 
 
 def get_last_failed_attempt():
-    bucket = storage_client.bucket(BUCKET_NAME)
-    blob = bucket.blob("last_failed_attempt.txt")
-    if not blob.exists():
-        return None
-    last_attempt = blob.download_as_text().strip()
-    return datetime.fromisoformat(last_attempt)
+    if LOCAL_STORAGE:
+        if not os.path.exists("last_failed_attempt.txt"):
+            return None
+        with open("last_failed_attempt.txt", "r") as file:
+            last_attempt = file.read().strip()
+        return datetime.fromisoformat(last_attempt)
+    else:
+        bucket = storage_client.bucket(BUCKET_NAME)
+        blob = bucket.blob("last_failed_attempt.txt")
+        if not blob.exists():
+            return None
+        last_attempt = blob.download_as_text().strip()
+        return datetime.fromisoformat(last_attempt)
