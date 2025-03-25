@@ -8,3 +8,4 @@ google-api-python-client
 google-auth-httplib2
 google-auth-oauthlib
 python-dateutil
+git+https://github.com/louisguichard/cursor-feedback.git

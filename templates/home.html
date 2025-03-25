@@ -82,103 +82,18 @@
             margin-bottom: 20px;
         }
         
-        /* Feedback system styles */
-        {% if enable_feedback %}
         .title-container {
             position: relative;
             display: inline-block;
             cursor: grab;
         }
-        
-        .feedback-menu {
-            display: none;
-            position: absolute;
-            background-color: white;
-            border: 1px solid #ccc;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        
-        .feedback-item {
-            padding: 8px 12px;
-            cursor: pointer;
-        }
-        
-        .feedback-item:hover {
-            background-color: #f0f0f0;
-        }
-        
-        .feedback-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1001;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .feedback-modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-        }
-        
-        .feedback-modal-content h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-        
-        #feedback-message {
-            width: 100%;
-            min-height: 100px;
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-family: inherit;
-        }
-        
-        .feedback-modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        
-        .feedback-modal-buttons button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        #cancel-feedback {
-            background-color: #f0f0f0;
-        }
-        
-        #submit-feedback {
-            background-color: #4CAF50;
-            color: white;
-        }
-        {% endif %}
     </style>
 </head>
 <body>
     <div class="container">
-        {% if enable_feedback %}
-        <div class="title-container">
+        <div class="title-container feedback-trigger">
             <h1>LifePulse</h1>
         </div>
-        {% else %}
-        <h1>LifePulse</h1>
-        {% endif %}
         
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
@@ -226,102 +141,5 @@
             </div>
         {% endif %}
     </div>
-
-    {% if enable_feedback %}
-    <!-- Feedback menu -->
-    <div id="feedback-menu" class="feedback-menu">
-        <div class="feedback-item" data-action="good">Good</div>
-        <div class="feedback-item" data-action="issue">Report Issue</div>
-    </div>
-    
-    <!-- Feedback modal -->
-    <div id="feedback-modal" class="feedback-modal">
-        <div class="feedback-modal-content">
-            <h3>Report Issue</h3>
-            <textarea id="feedback-message" placeholder="Describe the issue..."></textarea>
-            <div class="feedback-modal-buttons">
-                <button id="cancel-feedback">Cancel</button>
-                <button id="submit-feedback">Submit</button>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const titleContainer = document.querySelector('.title-container');
-            const feedbackMenu = document.getElementById('feedback-menu');
-            const feedbackModal = document.getElementById('feedback-modal');
-            const cancelFeedback = document.getElementById('cancel-feedback');
-            const submitFeedback = document.getElementById('submit-feedback');
-            const feedbackMessage = document.getElementById('feedback-message');
-            
-            // Handle right-click on title
-            titleContainer.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                
-                // Position the menu at the cursor
-                feedbackMenu.style.display = 'block';
-                feedbackMenu.style.left = `${e.pageX}px`;
-                feedbackMenu.style.top = `${e.pageY}px`;
-            });
-            
-            // Hide menu when clicking elsewhere
-            document.addEventListener('click', () => {
-                feedbackMenu.style.display = 'none';
-            });
-            
-            // Handle menu item clicks
-            document.querySelectorAll('.feedback-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    const action = e.target.dataset.action;
-                    
-                    if (action === 'good') {
-                        sendFeedback('good');
-                    } else if (action === 'issue') {
-                        feedbackModal.style.display = 'flex';
-                    }
-                });
-            });
-            
-            // Handle feedback modal
-            cancelFeedback.addEventListener('click', () => {
-                feedbackModal.style.display = 'none';
-                feedbackMessage.value = '';
-            });
-            
-            submitFeedback.addEventListener('click', () => {
-                const message = feedbackMessage.value.trim();
-                if (message) {
-                    sendFeedback('issue', message);
-                    feedbackModal.style.display = 'none';
-                } else {
-                    alert('Please describe the issue.');
-                }
-            });
-            
-            // Send feedback to the server
-            function sendFeedback(type, message = '') {
-                fetch('/feedback', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ type, message }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        alert(`Feedback sent: ${data.message}`);
-                    } else {
-                        alert(`Error: ${data.message}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error sending feedback:', error);
-                });
-            }
-        });
-    </script>
-    {% endif %}
 </body>
 </html>

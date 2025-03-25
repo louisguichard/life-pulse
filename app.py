@@ -11,7 +11,6 @@ from flask import (
 )
 from datetime import datetime, timedelta
 import pytz
-import time
 import functools
 from dotenv import load_dotenv
 from storage import (
@@ -32,6 +31,7 @@ from calendar_api import (
     get_credentials,
 )
 from googleapiclient.discovery import build
+from feedback import FeedbackSystem
 
 load_dotenv()
 app = Flask(__name__)
@@ -43,6 +43,10 @@ paris_tz = pytz.timezone("Europe/Paris")
 # Load config
 config_path = os.getenv("CONFIG_PATH", "config.json")
 config = load_config(config_path)
+
+# Initialize the feedback system
+feedback_system = FeedbackSystem(exit_on_feedback=True)
+feedback_system.init_app(app, enable_in_debug=True, enable_in_prod=False)
 
 
 # Login verification decorator
@@ -62,9 +66,7 @@ def login_required(f):
 @login_required
 def home():
     current_mood = get_latest_mood()
-    return render_template(
-        "home.html", current_mood=current_mood, enable_feedback=app.debug
-    )
+    return render_template("home.html", current_mood=current_mood)
 
 
 @app.route("/mood", methods=["GET", "POST"])
@@ -291,23 +293,6 @@ app.add_url_rule("/fitbit_callback", "fitbit_callback", fitbit_callback)
 # Calendar routes
 app.add_url_rule("/calendar_login", "calendar_login", calendar_login)
 app.add_url_rule("/calendar_callback", "calendar_callback", calendar_callback)
-
-
-@app.route("/feedback", methods=["POST"])
-def feedback():
-    feedback_type = request.json.get("type")
-    message = request.json.get("message", "")
-
-    if feedback_type == "good":
-        print("\n--- SUCCESS: User feedback is good! ---\n")
-        time.sleep(0.5)  # Brief delay to ensure response is sent
-        os._exit(0)
-    elif feedback_type == "issue":
-        print(f"\n--- ERROR: User reported an issue: {message} ---\n")
-        time.sleep(0.5)  # Brief delay to ensure response is sent
-        os._exit(1)
-
-    return {"status": "error", "message": "Invalid feedback type"}
 
 
 if __name__ == "__main__":
