@@ -4,4 +4,4 @@ EXPOSE 8080
 COPY . /app
 WORKDIR /app
 RUN pip install -r ./requirements.txt
-CMD ["python", "app.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]

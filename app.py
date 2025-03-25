@@ -13,6 +13,9 @@ from datetime import datetime, timedelta
 import pytz
 import functools
 from dotenv import load_dotenv
+from googleapiclient.discovery import build
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 from storage import (
     load_config,
     load_data,
@@ -30,12 +33,14 @@ from calendar_api import (
     get_calendar_events,
     get_credentials,
 )
-from googleapiclient.discovery import build
 from feedback import FeedbackSystem
 
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("APP_SECRET_KEY", "secret_key")
+app.debug = os.getenv("APP_ENV", "local").lower() == "local"
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
 
 # Timezone for Paris
 paris_tz = pytz.timezone("Europe/Paris")
@@ -296,6 +301,4 @@ app.add_url_rule("/calendar_callback", "calendar_callback", calendar_callback)
 
 
 if __name__ == "__main__":
-    # Set debug mode based on APP_ENV
-    app.debug = os.getenv("APP_ENV", "local").lower() == "local"
     app.run(host="0.0.0.0", port=8080)
