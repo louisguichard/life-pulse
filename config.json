@@ -27,5 +27,31 @@
         "😐": "Neutral",
         "🙂": "Happy",
         "😁": "Very Happy"
+    },
+    "calendar_events": {
+        "Sport": {
+            "target": 5,
+            "keywords": [
+                "Running",
+                "Swimming",
+                "Cycling"
+            ]
+        },
+        "Reading": {
+            "target": 3,
+            "keywords": [
+                "Reading",
+                "Book"
+            ]
+        },
+        "Arts": {
+            "target": 2,
+            "keywords": [
+                "Museum",
+                "Piano",
+                "Painting",
+                "Photography"
+            ]
+        }
     }
 }

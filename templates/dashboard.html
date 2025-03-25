@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifePulse - Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;500&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,13 +16,19 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             font-family: 'Montserrat', sans-serif; 
             font-weight: 200;
             background-color: white;
+            padding: 20px;
         }
         h2 {
             margin-bottom: 20px;
+        }
+        h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 500;
         }
         p {
             font-size: 18px;
@@ -42,7 +48,50 @@
         a:hover {
             background-color: #45a049;
         }
-        @media (max-width: 400px) {
+        .dashboard-section {
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 700px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 8px 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .clickable {
+            cursor: pointer;
+            color: inherit;
+            text-decoration: none;
+        }
+        .event-details {
+            display: none;
+        }
+        .event-details td {
+            padding-left: 30px;
+            font-size: 0.9em;
+            background-color: #f9f9f9;
+        }
+        .event-details th {
+            padding-left: 30px;
+            font-size: 0.9em;
+            background-color: #e9e9e9;
+        }
+        td.scheduled-value {
+            font-weight: 500;
+        }
+        @media (max-width: 600px) {
             p {
                 font-size: 16px;
             }
@@ -50,17 +99,111 @@
                 padding: 8px 16px;
                 font-size: 14px;
             }
+            table {
+                font-size: 14px;
+            }
+            th, td {
+                padding: 6px 8px;
+            }
         }
     </style>
+    <script>
+        function toggleCategoryEvents(categoryId) {
+            const detailRows = document.querySelectorAll(`.${categoryId}`);
+            const isVisible = detailRows.length > 0 && detailRows[0].style.display === 'table-row';
+            
+            // Hide all event details first
+            const allDetailRows = document.querySelectorAll('.event-row');
+            allDetailRows.forEach(row => {
+                row.style.display = 'none';
+            });
+            
+            // Toggle visibility of the clicked category's details
+            if (!isVisible && detailRows.length > 0) {
+                detailRows.forEach(row => {
+                    row.style.display = 'table-row';
+                });
+            }
+        }
+    </script>
 </head>
 <body>
     <h2>Dashboard</h2>
-    {% if fitbit_required %}
-        <p>You need to connect to Fitbit to see your data.</p>
-        <a href="{{ url_for('fitbit_login') }}">Connect to Fitbit</a>
+    
+    <!-- Fitbit Section -->
+    <div class="dashboard-section">
+        <h3>Fitbit Data</h3>
+        {% if fitbit_required %}
+            <p>You need to connect to Fitbit to see your data.</p>
+            <a href="{{ url_for('fitbit_login') }}">Connect to Fitbit</a>
+        {% else %}
+            {% if steps is not none %}
+                <p>Steps: {{ steps }}</p>
+            {% endif %}
+            {% if sleep is not none %}
+                <p>Sleep Time: {{ sleep }}</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- Weekly Summary Section -->
+    {% if weekly_summary and not calendar_required %}
+        <!-- Combined Weekly Summary -->
+        <div class="dashboard-section">
+            <h3>Weekly Time Tracking</h3>
+            {% if weekly_summary.projected_week %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Completed</th>
+                            <th>Scheduled</th>
+                            <th>Last Week</th>
+                            <th>Target</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category, data in weekly_summary.projected_week.items() %}
+                            <tr class="clickable" onclick="toggleCategoryEvents('cat-{{ category|replace(' ', '-') }}')">
+                                <td>{{ category }}</td>
+                                <td>{{ data.completed }}</td>
+                                <td class="scheduled-value">{{ data.scheduled }}</td>
+                                <td>{{ weekly_summary.previous_week[category] if weekly_summary.previous_week and category in weekly_summary.previous_week else 0 }}</td>
+                                <td>{{ weekly_summary.targets[category] if weekly_summary.targets and category in weekly_summary.targets else 0 }}</td>
+                            </tr>
+                            
+                            <!-- Current Week Events for this category -->
+                            {% if weekly_summary.curr_week_events and category in weekly_summary.curr_week_events %}
+                                {% for event in weekly_summary.curr_week_events[category] %}
+                                    <tr class="event-row cat-{{ category|replace(' ', '-') }}" style="display: none;">
+                                        <td colspan="2" style="padding-left: 30px; background-color: #f9f9f9;">{{ event.title }}</td>
+                                        <td colspan="3" style="background-color: #f9f9f9;">{{ event.duration }} hrs ({{ event.start }})</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <!-- Total Row -->
+                        <tr style="background-color: #e9e9e9;">
+                            <td>Total</td>
+                            <td>{{ weekly_summary.total.current_week.completed }}</td>
+                            <td class="scheduled-value">{{ weekly_summary.total.current_week.scheduled }}</td>
+                            <td>{{ weekly_summary.total.previous_week }}</td>
+                            <td>{{ weekly_summary.total.target }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No data available for current week.</p>
+            {% endif %}
+        </div>
     {% else %}
-        <p><strong>Steps:</strong> {{ steps }}</p>
-        <p><strong>Sleep Time:</strong> {{ sleep }} hours</p>
+        {% if calendar_required %}
+            <p>You need to connect to Google Calendar to see your events.</p>
+            <a href="{{ url_for('calendar_login') }}">Connect to Google Calendar</a>
+        {% endif %}
     {% endif %}
+    
+    <a href="{{ url_for('home') }}">Back to Home</a>
 </body>
 </html>

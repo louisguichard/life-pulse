@@ -24,6 +24,14 @@ from storage import (
     get_last_failed_attempt,
 )
 from fitbit import fitbit_login, fitbit_callback, get_fitbit_data, save_fitbit_data
+from calendar_api import (
+    calendar_login,
+    calendar_callback,
+    get_weekly_summary,
+    get_calendar_events,
+    get_credentials,
+)
+from googleapiclient.discovery import build
 
 load_dotenv()
 app = Flask(__name__)
@@ -132,23 +140,82 @@ def health():
         )
 
 
+# Utility functions for formatting time displays
+def format_hours_to_int(dict_obj):
+    """Format decimal hours to integer hours"""
+    if isinstance(dict_obj, dict):
+        return {k: format_hours_to_int(v) for k, v in dict_obj.items()}
+    elif isinstance(dict_obj, float):
+        return int(round(dict_obj))
+    else:
+        return dict_obj
+
+
+def format_sleep_time(hours):
+    """Format sleep time from decimal hours to hours and minutes (e.g., 7h45)"""
+    hours_int = int(hours)
+    minutes = int((hours - hours_int) * 60)
+    return f"{hours_int}h{minutes:02d}"
+
+
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    if not all([os.getenv("FITBIT_CLIENT_ID"), os.getenv("FITBIT_CLIENT_SECRET")]):
-        flash("Fitbit is not configured.", "error")
-        return redirect(url_for("home"))
-    now = datetime.now(paris_tz)
-    try:
-        if ("last_fitbit_check" not in session) or (
-            now - session["last_fitbit_check"] >= timedelta(days=1)
-        ):
-            save_fitbit_data(timezone=paris_tz)
-            session["last_fitbit_check"] = now
-        steps, sleep = get_fitbit_data(now.strftime("%Y-%m-%d"))
-    except ValueError:
-        return render_template("dashboard.html", fitbit_required=True)
-    return render_template("dashboard.html", steps=steps, sleep=sleep)
+    fitbit_configured = all(
+        [os.getenv("FITBIT_CLIENT_ID"), os.getenv("FITBIT_CLIENT_SECRET")]
+    )
+    calendar_configured = all(
+        [os.getenv("CALENDAR_CLIENT_ID"), os.getenv("CALENDAR_CLIENT_SECRET")]
+    )
+
+    # Check if calendar authentication is required
+    calendar_events = None
+    calendar_auth_required = False
+    weekly_summary = None
+
+    if calendar_configured:
+        calendar_events = get_calendar_events()
+        if calendar_events is None:
+            calendar_auth_required = True
+        else:
+            # Get weekly summary for categories
+            credentials = get_credentials()
+            service = build("calendar", "v3", credentials=credentials)
+            weekly_summary = get_weekly_summary(service)
+
+    # Check if Fitbit authentication is required
+    steps = None
+    sleep = None
+    fitbit_auth_required = False
+
+    if fitbit_configured:
+        now = datetime.now(paris_tz)
+        try:
+            if ("last_fitbit_check" not in session) or (
+                now - session["last_fitbit_check"] >= timedelta(days=1)
+            ):
+                save_fitbit_data(timezone=paris_tz)
+                session["last_fitbit_check"] = now
+            steps, sleep = get_fitbit_data(now.strftime("%Y-%m-%d"))
+            # Format sleep time as hours and minutes
+            if sleep is not None:
+                sleep = format_sleep_time(sleep)
+        except ValueError:
+            fitbit_auth_required = True
+
+    # Apply integer hours formatting to weekly_summary data
+    if weekly_summary:
+        weekly_summary = format_hours_to_int(weekly_summary)
+
+    return render_template(
+        "dashboard.html",
+        steps=steps,
+        sleep=sleep,
+        events=calendar_events,
+        weekly_summary=weekly_summary,
+        fitbit_required=fitbit_auth_required,
+        calendar_required=calendar_auth_required,
+    )
 
 
 @app.route("/history")
@@ -220,6 +287,10 @@ def logout():
 # Fitbit routes
 app.add_url_rule("/fitbit_login", "fitbit_login", fitbit_login)
 app.add_url_rule("/fitbit_callback", "fitbit_callback", fitbit_callback)
+
+# Calendar routes
+app.add_url_rule("/calendar_login", "calendar_login", calendar_login)
+app.add_url_rule("/calendar_callback", "calendar_callback", calendar_callback)
 
 
 @app.route("/feedback", methods=["POST"])
