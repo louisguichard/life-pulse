@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from storage import (
+from utils.storage import (
     load_config,
     load_data,
     save_data,
@@ -25,8 +25,13 @@ from storage import (
     log_failed_attempt,
     get_last_failed_attempt,
 )
-from fitbit import fitbit_login, fitbit_callback, get_fitbit_data, save_fitbit_data
-from calendar_api import (
+from utils.fitbit import (
+    fitbit_login,
+    fitbit_callback,
+    get_fitbit_data,
+    save_fitbit_data,
+)
+from utils.calendar_api import (
     calendar_login,
     calendar_callback,
     get_weekly_summary,

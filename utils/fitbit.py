@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from flask import request, session, redirect, url_for
 from urllib.parse import urlencode
 
-from storage import load_data, save_data
+from utils.storage import load_data, save_data
 
 SCHEME = "http" if os.getenv("APP_ENV", "local") == "local" else "https"
 FITBIT_CLIENT_ID = os.getenv("FITBIT_CLIENT_ID")

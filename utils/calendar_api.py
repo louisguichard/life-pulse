@@ -5,7 +5,7 @@ from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from flask import request, session, redirect, url_for, flash
-from storage import load_config
+from utils.storage import load_config
 
 # Set OAUTHLIB_INSECURE_TRANSPORT for local development
 if os.getenv("APP_ENV", "local") == "local":
